@@ -1,15 +1,16 @@
 const startScreen = document.getElementById('start-screen');
 const scene = document.getElementById('scene');
 const camera = document.getElementById('camera');
-const galaxy = document.getElementById('galaxy');
+const accretionDisk = document.getElementById('accretion-disk');
 const bgMusic = document.getElementById('bg-music');
-const starsContainer = document.getElementById('stars-container');
+const bgStars = document.getElementById('bg-stars');
 
 const letterModal = document.getElementById('letter-modal');
 const closeLetterBtn = document.getElementById('close-letter');
 const letterImg = document.getElementById('letter-img');
 const letterText = document.getElementById('letter-text');
 
+// Frases para tu mejor amiga
 const totalFotos = 15;
 const mensajesFotos = [
   "Gracias por estar siempre, en las buenas y en las malas.",
@@ -29,15 +30,16 @@ const mensajesFotos = [
   "¡Te adoro, mi mejor amiga del alma! ✨💖"
 ];
 
-const frasesFlotantes = ["Inseparables ♾️", "Mejor Amiga 👯‍♀️", "Gracias por tanto 💖", "Locuras Juntas 🥰", "Siempre Leal 🤝"];
-
+// Iniciar Experiencia
 startScreen.addEventListener('click', () => {
   startScreen.style.transform = 'scale(0)';
   startScreen.style.opacity = '0';
   
   bgMusic.play().catch(e => console.log("Audio no reproducido"));
-  crearEstrellas();
-  crearUniverso();
+  
+  crearFondoEstrellas();
+  crearAroDeEstrellasYFotos();
+  iniciarRotacionAro();
 
   setTimeout(() => {
     startScreen.style.display = 'none';
@@ -46,82 +48,97 @@ startScreen.addEventListener('click', () => {
   }, 1000);
 });
 
-function crearEstrellas() {
-  const numEstrellas = 300; 
-  for (let i = 0; i < numEstrellas; i++) {
+// 1. Estrellas lejanas (Fondo estático)
+function crearFondoEstrellas() {
+  for (let i = 0; i < 200; i++) {
     const star = document.createElement('div');
-    star.className = 'star';
-    
-    const x = Math.random() * 100;
-    const y = Math.random() * 100;
-    const size = Math.random() * 2.5;
-    const delay = Math.random() * 5;
-    const duration = 2 + Math.random() * 4;
-
-    star.style.left = `${x}%`;
-    star.style.top = `${y}%`;
+    star.className = 'bg-star';
+    star.style.left = `${Math.random() * 100}%`;
+    star.style.top = `${Math.random() * 100}%`;
+    const size = Math.random() * 2;
     star.style.width = `${size}px`;
     star.style.height = `${size}px`;
-    star.style.animationDelay = `${delay}s`;
-    star.style.animationDuration = `${duration}s`;
-
-    starsContainer.appendChild(star);
+    bgStars.appendChild(star);
   }
 }
 
-function crearUniverso() {
+// 2. Crear el anillo de estrellas brillantes y las fotos
+function crearAroDeEstrellasYFotos() {
+  // Configuración del aro (Disco de acreción)
+  const radioInterno = 120; // Espacio para el hoyo negro
+  const radioExterno = 450; // Hasta dónde llegan las estrellas
+  
+  // A. Crear 800 estrellas para formar el anillo de luz
+  for (let i = 0; i < 800; i++) {
+    const star = document.createElement('div');
+    star.className = 'disk-star';
+    
+    // Distribución aleatoria en forma de anillo
+    const angulo = Math.random() * Math.PI * 2;
+    const radio = radioInterno + Math.random() * (radioExterno - radioInterno);
+    
+    const tx = Math.cos(angulo) * radio;
+    const tz = Math.sin(angulo) * radio;
+    const ty = (Math.random() - 0.5) * 20; // Grosor muy delgado del aro
+    
+    star.style.setProperty('--tx', `${tx}px`);
+    star.style.setProperty('--ty', `${ty}px`);
+    star.style.setProperty('--tz', `${tz}px`);
+    
+    // Tamaños y brillos aleatorios
+    const size = Math.random() * 2.5;
+    star.style.width = `${size}px`;
+    star.style.height = `${size}px`;
+    if(Math.random() > 0.8) star.style.backgroundColor = '#ffddaa'; // Algunas doradas
+    
+    accretionDisk.appendChild(star);
+  }
+
+  // B. Colocar las 15 fotos intercaladas dentro del anillo
   for (let i = 0; i < totalFotos; i++) {
-    const item = document.createElement('div');
-    item.className = 'item photo';
+    const photoWrapper = document.createElement('div');
+    photoWrapper.className = 'photo-container';
     
-    const phi = Math.acos(-1 + (2 * i) / totalFotos);
-    const theta = Math.sqrt(totalFotos * Math.PI) * phi;
-    const radio = 350; 
+    // Repartidas en un círculo perfecto dentro del anillo (radio de 300px)
+    const angulo = (i / totalFotos) * Math.PI * 2;
+    const radioFoto = 300;
     
-    const ry = (theta * 180) / Math.PI; 
-    const ty = (radio * Math.cos(phi));
-    const tz = radio * Math.sin(phi);
-
-    item.style.setProperty('--ry', `${ry}deg`);
-    item.style.setProperty('--ty', `${ty}px`);
-    item.style.setProperty('--tz', `${tz}px`);
-    item.style.animationDelay = `${i * 0.1}s`;
-
-    item.innerHTML = `<img src="assets/foto${i + 1}.jpg" alt="Recuerdo">`;
+    const tx = Math.cos(angulo) * radioFoto;
+    const tz = Math.sin(angulo) * radioFoto;
+    const ty = (Math.random() - 0.5) * 60; // Un poco más de libertad en altura
     
-    item.addEventListener('click', (e) => {
+    photoWrapper.style.setProperty('--tx', `${tx}px`);
+    photoWrapper.style.setProperty('--ty', `${ty}px`);
+    photoWrapper.style.setProperty('--tz', `${tz}px`);
+    
+    photoWrapper.innerHTML = `<img src="assets/foto${i + 1}.jpg" alt="Recuerdo">`;
+    
+    // Evento de abrir carta
+    photoWrapper.addEventListener('click', (e) => {
       e.stopPropagation(); 
       abrirCarta(`assets/foto${i + 1}.jpg`, mensajesFotos[i]);
     });
 
-    galaxy.appendChild(item);
+    accretionDisk.appendChild(photoWrapper);
   }
-
-  frasesFlotantes.forEach((frase, index) => {
-    const item = document.createElement('div');
-    item.className = 'item text';
-    
-    const angle = (index * (360 / frasesFlotantes.length));
-    const ty = (Math.random() - 0.5) * 500;
-    const tz = 400 + Math.random() * 50;
-
-    item.style.setProperty('--ry', `${angle}deg`);
-    item.style.setProperty('--ty', `${ty}px`);
-    item.style.setProperty('--tz', `${tz}px`);
-    item.style.animationDelay = `${(totalFotos * 0.1) + (index * 0.2)}s`;
-
-    item.textContent = frase;
-    galaxy.appendChild(item);
-  });
 }
 
+// 3. Motor de Animación Constante (CERO LAG)
+let diskAngle = 0;
+function iniciarRotacionAro() {
+  diskAngle += 0.1; // Velocidad lenta y majestuosa
+  // Actualiza la variable CSS, lo que hace que el aro gire y las fotos se auto-roten
+  document.documentElement.style.setProperty('--diskAngle', `${diskAngle}deg`);
+  requestAnimationFrame(iniciarRotacionAro);
+}
+
+// --- LOGICA DE LA CARTA ---
 function abrirCarta(imgSrc, mensaje) {
   letterImg.src = imgSrc;
   letterText.textContent = mensaje;
   letterModal.classList.remove('hidden');
   setTimeout(() => letterModal.classList.add('show'), 10); 
 }
-
 closeLetterBtn.addEventListener('click', () => {
   letterModal.classList.remove('show');
   setTimeout(() => letterModal.classList.add('hidden'), 500);
@@ -133,6 +150,7 @@ letterModal.addEventListener('click', (e) => {
   }
 });
 
+// --- CONTROLES DE CÁMARA ---
 let rotX = -15; 
 let rotY = 0; 
 let zoom = 1;
@@ -143,7 +161,6 @@ scene.addEventListener('mousedown', (e) => {
   if (camera.classList.contains('entry-animation')) return; 
   isDragging = true; startX = e.clientX; startY = e.clientY;
 });
-
 scene.addEventListener('touchstart', (e) => {
   if (camera.classList.contains('entry-animation')) return;
   isDragging = true; startX = e.touches[0].clientX; startY = e.touches[0].clientY;
@@ -157,12 +174,12 @@ const moverCamara = (x, y) => {
   rotY += deltaX * 0.4; 
   rotX -= deltaY * 0.4; 
   
-  if(rotX > 60) rotX = 60;
-  if(rotX < -60) rotX = -60;
+  if(rotX > 75) rotX = 75; // No dejar que se voltee la cámara por completo
+  if(rotX < -75) rotX = -75;
 
-  camera.style.setProperty('--rotX', `${rotX}deg`);
-  camera.style.setProperty('--rotY', `${rotY}deg`);
-
+  // Actualizar variables CSS
+  document.documentElement.style.setProperty('--rotX', `${rotX}deg`);
+  document.documentElement.style.setProperty('--rotY', `${rotY}deg`);
   document.documentElement.style.setProperty('--invRotX', `${-rotX}deg`);
   document.documentElement.style.setProperty('--invRotY', `${-rotY}deg`);
   
@@ -180,7 +197,7 @@ scene.addEventListener('wheel', (e) => {
   if (camera.classList.contains('entry-animation')) return;
   e.preventDefault();
   zoom += e.deltaY * -0.001;
-  if (zoom < 0.4) zoom = 3; 
+  if (zoom < 0.4) zoom = 0.4; 
   if (zoom > 3) zoom = 3;
-  camera.style.setProperty('--zoom', zoom);
+  document.documentElement.style.setProperty('--zoom', zoom);
 }, { passive: false });
