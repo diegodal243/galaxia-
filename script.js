@@ -46,6 +46,7 @@ startScreen.addEventListener('click', () => {
   }, 1000);
 });
 
+// Estrellas de fondo lejano
 function crearFondoEstrellas() {
   for (let i = 0; i < 300; i++) {
     const star = document.createElement('div');
@@ -59,80 +60,86 @@ function crearFondoEstrellas() {
   }
 }
 
+// Crear el Disco de Acreción (Estrellas y fotos mezcladas y PLANAS)
 function crearAroDeEstrellasYFotos() {
-  const radioInterno = 120; // Pegado al hoyo negro (que mide 150)
-  const radioExterno = 800; // Hasta dónde llegan las estrellas
+  const radioInterno = 180; // Empiezan un poco alejadas del centro oscuro
+  const radioExterno = 1000; // Extensión total del universo visible
   
-  // A. 2000 estrellas densas
-  for (let i = 0; i < 2000; i++) {
+  // 1. Crear 2500 estrellas de colores formando un disco majestuoso
+  for (let i = 0; i < 2500; i++) {
     const star = document.createElement('div');
     star.className = 'disk-star';
     
     const angulo = Math.random() * Math.PI * 2;
-    const radio = radioInterno + Math.pow(Math.random(), 1.5) * (radioExterno - radioInterno);
+    // Concentramos más estrellas cerca del centro
+    const radio = radioInterno + Math.pow(Math.random(), 2) * (radioExterno - radioInterno);
     
     const tx = Math.cos(angulo) * radio;
     const tz = Math.sin(angulo) * radio;
-    const ty = (Math.random() - 0.5) * 50; 
+    // ¡DISCO PLANO! Variación mínima en altura para que parezca un aro compacto
+    const ty = (Math.random() - 0.5) * 15; 
     
     star.style.setProperty('--tx', `${tx}px`);
     star.style.setProperty('--ty', `${ty}px`);
     star.style.setProperty('--tz', `${tz}px`);
     
-    const size = Math.random() * 2.5;
+    const size = Math.random() * 3;
     star.style.width = `${size}px`;
     star.style.height = `${size}px`;
-    if(Math.random() > 0.6) star.style.backgroundColor = '#ffddaa'; 
-    if(Math.random() > 0.9) star.style.backgroundColor = '#00ffff'; // Algunas azules
+    
+    // Asignar colores tipo Interstellar (blanco, azul caliente, naranja)
+    const randColor = Math.random();
+    if (randColor > 0.85) star.style.backgroundColor = '#ffcc88'; // Naranja/Dorado
+    else if (randColor > 0.70) star.style.backgroundColor = '#aaddff'; // Azul caliente
+    else star.style.backgroundColor = '#ffffff'; // Blanco puro
+
+    // Halo de brillo
+    star.style.boxShadow = `0 0 ${Math.random() * 10 + 5}px ${star.style.backgroundColor}`;
     
     accretionDisk.appendChild(star);
   }
 
-  // B. FOTOS MEZCLADAS Y FLOTANTES
+  // 2. Insertar las fotos en EL MISMO DISCO
   for (let i = 0; i < totalFotos; i++) {
     const photoWrapper = document.createElement('div');
     photoWrapper.className = 'photo-container';
     
+    // Distribuir en un círculo completo para que no se peguen
     const anguloBase = (i / totalFotos) * Math.PI * 2;
-    const angulo = anguloBase + (Math.random() * 0.1 - 0.05);
+    const angulo = anguloBase + (Math.random() * 0.2 - 0.1); // Ligera variación natural
     
-    // Las fotos empiezan desde muy cerca (180px) hasta lejos (600px)
-    const radioFoto = 180 + Math.random() * 420; 
+    // Distribuir la distancia (algunas cerca del hoyo negro, otras más lejos en el aro)
+    const radioFoto = radioInterno + 50 + Math.random() * (radioExterno - radioInterno - 200); 
     
     const tx = Math.cos(angulo) * radioFoto;
     const tz = Math.sin(angulo) * radioFoto;
+    // Las fotos comparten la misma altura plana que el polvo estelar
+    const ty = (Math.random() - 0.5) * 10; 
     
     photoWrapper.style.setProperty('--tx', `${tx}px`);
+    photoWrapper.style.setProperty('--ty', `${ty}px`);
     photoWrapper.style.setProperty('--tz', `${tz}px`);
     
-    // CREAMOS EL ENVOLTORIO PARA QUE SUBA Y BAJE
-    const photoBobbing = document.createElement('div');
-    photoBobbing.className = 'photo-bobbing';
-    // Cada foto sube/baja a velocidades distintas (entre 3s y 7s)
-    photoBobbing.style.setProperty('--bob-speed', `${3 + Math.random() * 4}s`);
-    // Cada foto empieza en un momento distinto para que parezcan olas
-    photoBobbing.style.setProperty('--bob-delay', `-${Math.random() * 5}s`);
+    photoWrapper.innerHTML = `<img src="assets/foto${i + 1}.jpg" alt="Recuerdo">`;
     
-    photoBobbing.innerHTML = `<img src="assets/foto${i + 1}.jpg" alt="Recuerdo">`;
-    
-    photoBobbing.addEventListener('click', (e) => {
+    photoWrapper.addEventListener('click', (e) => {
       e.stopPropagation(); 
       abrirCarta(`assets/foto${i + 1}.jpg`, mensajesFotos[i]);
     });
 
-    photoWrapper.appendChild(photoBobbing);
     accretionDisk.appendChild(photoWrapper);
   }
 }
 
+// Rotación majestuosa (Cero rebotes, solo orbita)
 let diskAngle = 0;
 function iniciarRotacionAro() {
-  diskAngle += 0.06; 
+  diskAngle += 0.05; // Muy suave
   document.documentElement.style.setProperty('--diskAngle', `${diskAngle}deg`);
   requestAnimationFrame(iniciarRotacionAro);
 }
 
-// LOGICA DE LA CARTA
+// LÓGICA DE LA CARTA
 function abrirCarta(imgSrc, mensaje) {
   letterImg.src = imgSrc;
   letterText.textContent = mensaje;
@@ -150,10 +157,10 @@ letterModal.addEventListener('click', (e) => {
   }
 });
 
-// --- CONTROLES DE CÁMARA (VISTA Y ZOOM REAL) ---
-let rotX = -20; 
+// --- CONTROLES DE CÁMARA ---
+let rotX = -25; 
 let rotY = 0; 
-let zoomZ = 250; // ¡INICIAMOS MUY CERCA!
+let zoomZ = 100; 
 let isDragging = false;
 let startX, startY;
 
@@ -174,8 +181,8 @@ const moverCamara = (x, y) => {
   rotY += deltaX * 0.4; 
   rotX -= deltaY * 0.4; 
   
-  if(rotX > 90) rotX = 90; 
-  if(rotX < -90) rotX = -90;
+  if(rotX > 85) rotX = 85; // Permitir vista desde arriba
+  if(rotX < -85) rotX = -85; // Permitir vista desde abajo
 
   document.documentElement.style.setProperty('--rotX', `${rotX}deg`);
   document.documentElement.style.setProperty('--rotY', `${rotY}deg`);
@@ -192,17 +199,14 @@ const detenerArrastre = () => isDragging = false;
 window.addEventListener('mouseup', detenerArrastre);
 window.addEventListener('touchend', detenerArrastre);
 
-// ZOOM REAL EN 3D
+// ZOOM (Adelante y atrás)
 scene.addEventListener('wheel', (e) => {
   if (camera.classList.contains('entry-animation')) return;
   e.preventDefault();
   
-  // Acercar/Alejar
   zoomZ -= e.deltaY * 1.5; 
-  
-  // Limites del viaje
-  if (zoomZ < -2000) zoomZ = -2000; 
-  if (zoomZ > 1000) zoomZ = 1000; // Te permite atravesar el hoyo negro
+  if (zoomZ < -2500) zoomZ = -2500; 
+  if (zoomZ > 1200) zoomZ = 1200; 
   
   document.documentElement.style.setProperty('--zoomZ', `${zoomZ}px`);
 }, { passive: false });
