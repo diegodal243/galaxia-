@@ -1,45 +1,47 @@
 :root {
-  --rotX: -20deg; /* Ángulo para ver el disco de frente/arriba */
+  --rotX: -25deg; /* Vista semi-superior para apreciar el disco */
   --rotY: 0deg;
-  --invRotX: 20deg;
+  --invRotX: 25deg;
   --invRotY: 0deg;
   --diskAngle: 0deg;
-  --zoomZ: 250px; /* ¡Empezamos MÁS CERCA del hoyo negro! */
+  --zoomZ: 100px; /* Iniciamos cerca, pero con buena perspectiva */
 }
 
 body {
   margin: 0; padding: 0;
-  background-color: #010005; 
+  background-color: #010005; /* Vacío absoluto */
   height: 100vh; overflow: hidden;
   font-family: 'Dosis', sans-serif;
   user-select: none;
 }
 .hidden { display: none !important; }
 
+/* --- PANTALLA INICIAL --- */
 #start-screen {
   position: absolute; top: 0; left: 0; width: 100%; height: 100%;
   background-color: #010005; z-index: 9999;
   display: flex; flex-direction: column; justify-content: center; align-items: center;
-  cursor: pointer; transition: opacity 1s ease, transform 1s ease;
+  cursor: pointer; transition: opacity 1.5s ease, transform 1.5s ease;
 }
 #start-screen .sunflower {
-  font-size: 8rem; animation: latidoGiratorio 1.5s infinite;
-  filter: drop-shadow(0 0 30px #ffaa00) saturate(200%);
+  font-size: 8rem; animation: latidoGiratorio 2s infinite ease-in-out;
+  filter: drop-shadow(0 0 40px rgba(255, 170, 0, 0.8)) saturate(200%);
 }
 #start-screen p {
-  color: #ffaa00; font-size: 2.2rem; margin-top: 30px;
-  text-shadow: 0 0 15px rgba(255, 170, 0, 0.8); animation: parpadeo 2s infinite alternate;
+  color: #ffaa00; font-size: 2.2rem; margin-top: 30px; letter-spacing: 2px;
+  text-shadow: 0 0 20px rgba(255, 170, 0, 0.8); animation: parpadeo 3s infinite alternate;
 }
 @keyframes latidoGiratorio {
   0% { transform: scale(1) rotate(0deg); }
-  50% { transform: scale(1.1) rotate(5deg); }
+  50% { transform: scale(1.05) rotate(3deg); }
   100% { transform: scale(1) rotate(0deg); }
 }
-@keyframes parpadeo { 0% { opacity: 0.5; } 100% { opacity: 1; } }
+@keyframes parpadeo { 0% { opacity: 0.6; } 100% { opacity: 1; } }
 
+/* --- ESCENARIO Y CÁMARA --- */
 #scene {
   position: absolute; width: 100%; height: 100%;
-  perspective: 1000px; display: flex; justify-content: center; align-items: center;
+  perspective: 1200px; display: flex; justify-content: center; align-items: center;
   cursor: grab;
 }
 #scene:active { cursor: grabbing; }
@@ -60,24 +62,29 @@ body {
 }
 
 #camera.entry-animation {
-  animation: entradaEpica 4s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
+  animation: entradaEpica 5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 @keyframes entradaEpica {
-  0% { transform: translateZ(-2500px) rotateX(-80deg) rotateY(180deg); opacity: 0; }
+  0% { transform: translateZ(-3000px) rotateX(-80deg) rotateY(180deg); opacity: 0; }
   100% { transform: translateZ(var(--zoomZ)) rotateX(var(--rotX)) rotateY(var(--rotY)); opacity: 1; }
 }
 
-/* El Hoyo Negro (El centro oscuro con luz atrás) */
+/* --- EL HOYO NEGRO ULTRA REALISTA --- */
 #black-hole-center {
-  position: absolute; top: -75px; left: -75px;
-  width: 150px; height: 150px;
+  position: absolute; top: -80px; left: -80px;
+  width: 160px; height: 160px;
   background-color: #000; border-radius: 50%;
-  /* Sombra para simular luz consumida */
-  box-shadow: 0 0 20px #fff, 0 0 50px #ffddaa, 0 0 100px #ff8800, 0 0 150px #aa00ff;
-  /* El agujero siempre mira a la cámara, y por su posición 0,0,0 tapará lo que pase atrás */
+  /* Múltiples capas de sombra para crear el disco de fotones brillante */
+  box-shadow: 
+    0 0 10px rgba(255, 255, 255, 0.8),
+    0 0 30px rgba(255, 200, 100, 0.8),
+    0 0 80px rgba(255, 100, 0, 0.6),
+    0 0 150px rgba(150, 50, 255, 0.4);
+  /* El agujero siempre mira a la cámara para verse perfectamente esférico */
   transform: rotateY(var(--invRotY)) rotateX(var(--invRotX));
 }
 
+/* --- EL DISCO DE ACRECIÓN --- */
 #accretion-disk {
   position: absolute; top: 0; left: 0;
   transform-style: preserve-3d;
@@ -86,60 +93,50 @@ body {
 
 .disk-star {
   position: absolute; top: 0; left: 0;
-  background-color: #fff; border-radius: 50%;
-  box-shadow: 0 0 5px #fff, 0 0 10px #ffddaa;
+  border-radius: 50%;
   transform: translate3d(var(--tx), var(--ty), var(--tz));
 }
 
-/* Base de la foto que sigue la órbita del anillo */
+/* --- LAS FOTOS (Integradas en el disco, sin brincar) --- */
 .photo-container {
   position: absolute; top: 0; left: 0;
   transform-style: preserve-3d;
-  transform: translate3d(var(--tx), 0, var(--tz)) /* ty lo manejamos adentro ahora */
+  /* La foto se traslada por el disco, anula el giro del disco y luego anula la cámara */
+  transform: translate3d(var(--tx), var(--ty), var(--tz)) 
              rotateY(calc(-1 * var(--diskAngle))) 
              rotateY(var(--invRotY)) 
              rotateX(var(--invRotX));
 }
 
-/* ¡NUEVO! Envoltorio independiente para subir y bajar la foto libremente */
-.photo-bobbing {
-  transform-style: preserve-3d;
-  /* Animación con variables inyectadas por JS para que cada foto flote distinto */
-  animation: levitar var(--bob-speed) ease-in-out infinite alternate;
-  animation-delay: var(--bob-delay);
-}
-
-@keyframes levitar { 
-  /* ¡Sube y baja drásticamente 40px! */
-  0% { transform: translateY(-40px); } 
-  100% { transform: translateY(40px); } 
-}
-
-.photo-bobbing img {
-  width: 130px; height: 130px; object-fit: cover;
-  border-radius: 12px; border: 3px solid rgba(255, 255, 255, 0.9);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.8), 0 0 20px rgba(255, 200, 100, 0.6);
+.photo-container img {
+  width: 140px; height: 140px; object-fit: cover;
+  border-radius: 8px; /* Cuadradas con borde suave */
+  border: 2px solid rgba(255, 200, 100, 0.8);
+  /* Halo de luz cósmica para que se mezclen con las estrellas */
+  box-shadow: 0 0 30px rgba(255, 150, 0, 0.5), inset 0 0 10px rgba(0,0,0,0.5);
   cursor: pointer; pointer-events: auto;
-  transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s, border-color 0.4s;
 }
 
-.photo-bobbing:hover img {
-  border-color: #ffaa00; 
-  box-shadow: 0 0 40px #ffaa00, 0 0 80px #ff5500;
-  transform: scale(1.3); 
+.photo-container:hover img {
+  border-color: #fff; 
+  box-shadow: 0 0 50px rgba(255, 255, 255, 0.8), 0 0 80px rgba(255, 150, 0, 0.8);
+  transform: scale(1.2); 
+  z-index: 10;
 }
 
+/* --- MODAL DE LA CARTA --- */
 #letter-modal {
   position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+  background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
   display: flex; justify-content: center; align-items: center; z-index: 10000;
   opacity: 0; transition: opacity 0.5s;
 }
 #letter-modal.show { opacity: 1; display: flex !important; }
 .letter-content {
-  background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0));
-  border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 8px 32px 0 rgba(255, 170, 0, 0.3);
-  border-radius: 20px; padding: 30px; max-width: 400px; width: 85%; text-align: center; position: relative;
+  background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0));
+  border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 15px 50px rgba(255, 150, 0, 0.2);
+  border-radius: 20px; padding: 30px; max-width: 420px; width: 85%; text-align: center; position: relative;
   transform: scale(0.8); transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 #letter-modal.show .letter-content { transform: scale(1); }
@@ -149,10 +146,10 @@ body {
 }
 #close-letter:hover { color: #ffaa00; }
 .letter-image-container img {
-  width: 100%; max-height: 250px; object-fit: cover; border-radius: 15px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.5); margin-bottom: 20px; border: 2px solid #ffaa00;
+  width: 100%; max-height: 250px; object-fit: cover; border-radius: 12px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.8); margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.2);
 }
 #letter-title {
-  font-family: 'Dancing Script', cursive; color: #ffaa00; font-size: 2.5rem; margin: 0 0 10px 0; text-shadow: 0 2px 5px rgba(0,0,0,0.5);
+  font-family: 'Dancing Script', cursive; color: #ffaa00; font-size: 2.5rem; margin: 0 0 15px 0; text-shadow: 0 2px 10px rgba(255, 150, 0, 0.5);
 }
-#letter-text { color: #fff; font-size: 1.2rem; line-height: 1.5; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
+#letter-text { color: #fff; font-size: 1.2rem; line-height: 1.6; text-shadow: 0 2px 5px rgba(0,0,0,0.8); font-weight: 400; }
