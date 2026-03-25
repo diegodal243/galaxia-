@@ -5,11 +5,13 @@ const galaxy = document.getElementById('galaxy');
 const bgMusic = document.getElementById('bg-music');
 const starsContainer = document.getElementById('stars-container');
 
+// Elementos de la Carta
 const letterModal = document.getElementById('letter-modal');
 const closeLetterBtn = document.getElementById('close-letter');
 const letterImg = document.getElementById('letter-img');
 const letterText = document.getElementById('letter-text');
 
+// Configuración de la Galaxia
 const totalFotos = 15;
 const mensajesFotos = [
   "Gracias por estar siempre, en las buenas y en las malas.",
@@ -31,7 +33,9 @@ const mensajesFotos = [
 
 const frasesFlotantes = ["Inseparables ♾️", "Mejor Amiga 👯‍♀️", "Gracias por tanto 💖", "Locuras Juntas 🥰", "Siempre Leal 🤝"];
 
+// --- INICIAR EXPERIENCIA (NUEVA ANIMACIÓN DE ENTRADA ÉPICA) ---
 startScreen.addEventListener('click', () => {
+  // 1. Zoom out y desvanecer la pantalla de inicio
   startScreen.style.transform = 'scale(0)';
   startScreen.style.opacity = '0';
   
@@ -39,11 +43,13 @@ startScreen.addEventListener('click', () => {
   crearEstrellas();
   crearUniverso();
 
+  // 2. Pequeño retraso para que la galaxia empiece oculta y luego haga la entrada
   setTimeout(() => {
     startScreen.style.display = 'none';
     scene.classList.remove('hidden');
+    // 3. ¡Añadimos la animación de entrada épica a la cámara!
     camera.classList.add('entry-animation');
-  }, 1000);
+  }, 1000); // Espera 1 segundo a que se desvanezca el inicio
 });
 
 // Crear un mar de estrellas estáticas pero parpadeantes (optimizado para evitar lag)
@@ -70,6 +76,7 @@ function crearEstrellas() {
   }
 }
 
+// Crear Fotorrealismo Esférico 3D de fotos y textos (interactivo y anti-lag)
 function crearUniverso() {
   for (let i = 0; i < totalFotos; i++) {
     const item = document.createElement('div');
