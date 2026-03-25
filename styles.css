@@ -1,23 +1,21 @@
-/* Variables maestras controladas por JS */
 :root {
-  --rotX: -15deg;
+  --rotX: -25deg; /* Empezamos mirando un poco desde arriba */
   --rotY: 0deg;
-  --invRotX: 15deg;
+  --invRotX: 25deg;
   --invRotY: 0deg;
   --diskAngle: 0deg;
-  --zoom: 1;
+  --zoomZ: -400px; /* Zoom inicial (un poco alejado para ver lo inmenso que es) */
 }
 
 body {
   margin: 0; padding: 0;
-  background-color: #010005; /* Espacio profundo */
+  background-color: #010005; 
   height: 100vh; overflow: hidden;
   font-family: 'Dosis', sans-serif;
   user-select: none;
 }
 .hidden { display: none !important; }
 
-/* --- PANTALLA INICIAL --- */
 #start-screen {
   position: absolute; top: 0; left: 0; width: 100%; height: 100%;
   background-color: #010005; z-index: 9999;
@@ -39,7 +37,6 @@ body {
 }
 @keyframes parpadeo { 0% { opacity: 0.5; } 100% { opacity: 1; } }
 
-/* --- ESCENARIO Y CÁMARA --- */
 #scene {
   position: absolute; width: 100%; height: 100%;
   perspective: 1200px; display: flex; justify-content: center; align-items: center;
@@ -49,47 +46,41 @@ body {
 
 #bg-stars {
   position: absolute; width: 200vw; height: 200vh;
-  top: -50vh; left: -50vw; pointer-events: none; transform: translateZ(-800px);
+  top: -50vh; left: -50vw; pointer-events: none; transform: translateZ(-1500px);
 }
 .bg-star {
-  position: absolute; background-color: #fff; border-radius: 50%;
-  opacity: 0.5;
+  position: absolute; background-color: #fff; border-radius: 50%; opacity: 0.5;
 }
 
 #camera {
   width: 0; height: 0; position: absolute; top: 50%; left: 50%;
   transform-style: preserve-3d;
-  transform: scale(var(--zoom)) rotateX(var(--rotX)) rotateY(var(--rotY));
-  transition: transform 0.1s ease-out; /* Suavidad al mover el ratón */
+  /* El zoom ahora es distancia real (translateZ) */
+  transform: translateZ(var(--zoomZ)) rotateX(var(--rotX)) rotateY(var(--rotY));
+  transition: transform 0.1s ease-out; 
 }
 #camera.entry-animation {
-  animation: entradaEpica 3.5s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+  animation: entradaEpica 4s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
 }
 @keyframes entradaEpica {
-  0% { transform: scale(4) rotateX(-70deg) rotateY(180deg); opacity: 0; }
-  100% { transform: scale(1) rotateX(var(--rotX)) rotateY(var(--rotY)); opacity: 1; }
+  0% { transform: translateZ(-4000px) rotateX(-80deg) rotateY(180deg); opacity: 0; }
+  100% { transform: translateZ(var(--zoomZ)) rotateX(var(--rotX)) rotateY(var(--rotY)); opacity: 1; }
 }
 
-/* --- EL HOYO NEGRO --- */
 #black-hole-center {
   position: absolute; top: -75px; left: -75px;
   width: 150px; height: 150px;
   background-color: #000; border-radius: 50%;
-  /* El aura de luz masiva */
   box-shadow: 0 0 20px #fff, 0 0 50px #ffddaa, 0 0 100px #ff8800, 0 0 150px #aa00ff;
-  /* El agujero negro siempre te mira para verse como una esfera perfecta */
   transform: rotateY(var(--invRotY)) rotateX(var(--invRotX));
 }
 
-/* --- EL ARO DE ESTRELLAS Y FOTOS --- */
 #accretion-disk {
   position: absolute; top: 0; left: 0;
   transform-style: preserve-3d;
-  /* El giro lento de todo el aro gestionado por JS */
   transform: rotateY(var(--diskAngle));
 }
 
-/* Estrellas individuales que forman el aro */
 .disk-star {
   position: absolute; top: 0; left: 0;
   background-color: #fff; border-radius: 50%;
@@ -97,11 +88,9 @@ body {
   transform: translate3d(var(--tx), var(--ty), var(--tz));
 }
 
-/* Las fotos flotando en el aro */
 .photo-container {
   position: absolute; top: 0; left: 0;
   transform-style: preserve-3d;
-  /* 1. Se ubica en el aro. 2. Deshace el giro del aro. 3. Mira a la cámara */
   transform: translate3d(var(--tx), var(--ty), var(--tz)) 
              rotateY(calc(-1 * var(--diskAngle))) 
              rotateY(var(--invRotY)) 
@@ -110,20 +99,19 @@ body {
 }
 
 .photo-container img {
-  width: 110px; height: 110px; object-fit: cover;
+  width: 120px; height: 120px; object-fit: cover;
   border-radius: 12px; border: 3px solid rgba(255, 255, 255, 0.9);
-  box-shadow: 0 5px 15px rgba(0,0,0,0.8), 0 0 20px rgba(255, 200, 100, 0.6);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.8), 0 0 20px rgba(255, 200, 100, 0.6);
   cursor: pointer; pointer-events: auto;
   animation: levitar 4s ease-in-out infinite alternate;
 }
 .photo-container:hover img {
-  border-color: #ffaa00; box-shadow: 0 0 30px #ffaa00, 0 0 50px #ff5500;
-  transform: scale(1.2); transition: transform 0.3s;
+  border-color: #ffaa00; box-shadow: 0 0 40px #ffaa00, 0 0 60px #ff5500;
+  transform: scale(1.3); transition: transform 0.3s;
 }
 
 @keyframes levitar { 0% { margin-top: -15px; } 100% { margin-top: 15px; } }
 
-/* --- MODAL DE LA CARTA --- */
 #letter-modal {
   position: absolute; top: 0; left: 0; width: 100%; height: 100%;
   background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
