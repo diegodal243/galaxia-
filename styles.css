@@ -1,35 +1,26 @@
+/* --- RESET Y FUENTES --- */
 body {
   margin: 0; padding: 0;
-  background-color: #020202;
-  background-image: 
-    radial-gradient(circle at 50% 50%, rgba(255,255,255,0.1) 1px, transparent 1px),
-    radial-gradient(circle at 80% 20%, rgba(255,255,255,0.15) 2px, transparent 2px);
-  background-size: 100px 100px, 150px 150px;
-  background-position: 0 0, 40px 60px;
+  background-color: #020108; /* Azul espacial muy oscuro */
   height: 100vh;
   overflow: hidden;
   font-family: 'Dosis', sans-serif;
-  display: flex; justify-content: center; align-items: center;
-  perspective: 1200px; 
-  animation: viajeEspacial 40s linear infinite;
+  user-select: none; /* Evita que se seleccione el texto al arrastrar */
 }
 
-@keyframes viajeEspacial {
-  from { background-position: 0 0, 40px 60px; }
-  to { background-position: -500px -500px, -460px -440px; }
-}
+.hidden { display: none !important; }
 
+/* --- PANTALLA INICIAL --- */
 #start-screen {
   position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-  background-color: #000;
+  background-color: #020108;
   display: flex; flex-direction: column; justify-content: center; align-items: center;
-  z-index: 9999; cursor: pointer; transition: opacity 0.5s ease;
+  z-index: 9999; cursor: pointer; transition: opacity 1s ease;
 }
-
 #start-screen .sunflower {
-  font-size: 5rem; animation: latidoGiratorio 1.5s infinite;
+  font-size: 6rem; animation: latidoGiratorio 1.5s infinite;
+  filter: drop-shadow(0 0 20px #ffaa00);
 }
-
 #start-screen p {
   color: #ffaa00; font-size: 2rem; margin-top: 20px;
   text-shadow: 0 0 15px rgba(255, 170, 0, 0.8);
@@ -37,100 +28,172 @@ body {
 }
 
 @keyframes latidoGiratorio {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.15); }
-  100% { transform: scale(1); }
+  0% { transform: scale(1) rotate(0deg); }
+  50% { transform: scale(1.15) rotate(5deg); }
+  100% { transform: scale(1) rotate(0deg); }
 }
-@keyframes parpadeo {
-  0% { opacity: 0.5; } 100% { opacity: 1; }
-}
+@keyframes parpadeo { 0% { opacity: 0.5; } 100% { opacity: 1; } }
 
-.hidden { display: none !important; }
-
-/* El efecto de Zoom Épico al iniciar */
-.zoom-in-effect {
-  animation: entradaEpica 3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-}
-@keyframes entradaEpica {
-  0% { transform: scale(0.2) rotateX(-5deg); opacity: 0; }
-  100% { transform: scale(1) rotateX(-15deg); opacity: 1; }
-}
-
-.galaxy-container {
-  width: 100%; height: 100%;
+/* --- ESCENARIO 3D INTERACTIVO --- */
+#scene {
+  position: absolute; width: 100%; height: 100%;
+  perspective: 1000px;
   display: flex; justify-content: center; align-items: center;
-  transform-style: preserve-3d;
+  cursor: grab; /* Cursor de "agarrar" para rotar */
+}
+#scene:active { cursor: grabbing; }
+
+/* Contenedor de estrellas de fondo */
+#stars-container {
+  position: absolute; width: 200vw; height: 200vh;
+  top: -50vh; left: -50vw;
+  pointer-events: none; /* Que no interfiera con los clics */
+  transform: translateZ(-500px);
 }
 
-.galaxy {
-  position: relative; width: 200px; height: 200px;
-  transform-style: preserve-3d;
-  animation: girarGalaxia 35s linear infinite;
+.star {
+  position: absolute;
+  background-color: #fff;
+  border-radius: 50%;
+  box-shadow: 0 0 5px #fff, 0 0 10px #ffddaa;
+  animation: titilar infinite alternate;
+}
+@keyframes titilar {
+  0% { opacity: 0.2; transform: scale(0.8); }
+  100% { opacity: 1; transform: scale(1.2); }
 }
 
-@keyframes girarGalaxia {
+/* --- CAMARA Y GALAXIA --- */
+#camera {
+  width: 100%; height: 100%;
+  transform-style: preserve-3d;
+  /* El JS modificará estas variables al hacer zoom o arrastrar */
+  transform: scale(var(--zoom, 1)) rotateX(var(--rotX, -15deg)) rotateY(var(--rotY, 0deg));
+  transition: transform 0.1s ease-out; /* Suavidad al mover */
+}
+
+#galaxy {
+  position: absolute; top: 50%; left: 50%;
+  width: 0; height: 0;
+  transform-style: preserve-3d;
+  animation: rotacionInfinita 40s linear infinite;
+}
+
+@keyframes rotacionInfinita {
   0% { transform: rotateY(0deg); }
   100% { transform: rotateY(360deg); }
 }
 
+/* El sol central */
 .sun {
-  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-  width: 80px; height: 80px;
-  background: radial-gradient(circle, #fff 0%, #ffdf80 40%, transparent 80%);
+  position: absolute; top: -50px; left: -50px;
+  width: 100px; height: 100px;
+  background: radial-gradient(circle, #ffffff 0%, #ffcc00 40%, transparent 80%);
   border-radius: 50%;
-  box-shadow: 0 0 80px #ffaa00, 0 0 150px #ff5500, inset 0 0 20px #fff;
-  animation: palpitarSol 2s infinite alternate;
+  box-shadow: 0 0 100px #ffaa00, 0 0 200px #ff5500, inset 0 0 30px #fff;
+  animation: palpitarSol 3s infinite alternate;
 }
-
 @keyframes palpitarSol {
-  0% { transform: translate(-50%, -50%) scale(0.9); opacity: 0.8; }
-  100% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+  0% { transform: scale(0.9); opacity: 0.8; }
+  100% { transform: scale(1.1); opacity: 1; }
 }
 
+/* Elementos flotantes */
 .item {
-  position: absolute; top: 50%; left: 50%;
+  position: absolute; top: 0; left: 0;
   transform-style: preserve-3d;
-  opacity: 0; /* Inician invisibles */
-  /* Animación de nacimiento elástico (El Big Bang) */
+  opacity: 0;
   animation: nacerDelCentro 2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
 @keyframes nacerDelCentro {
-  0% {
-    transform: translate(-50%, -50%) rotateY(var(--ry)) translateY(0px) translateZ(0px) scale(0);
-    opacity: 0;
-  }
-  100% {
-    transform: translate(-50%, -50%) rotateY(var(--ry)) translateY(var(--ty)) translateZ(var(--tz)) scale(1);
-    opacity: 1;
-  }
+  0% { transform: rotateY(var(--ry)) translateY(0px) translateZ(0px) scale(0); opacity: 0; }
+  100% { transform: rotateY(var(--ry)) translateY(var(--ty)) translateZ(var(--tz)) scale(1); opacity: 1; }
+}
+
+.photo {
+  cursor: pointer; /* Indica que se puede clickear */
+  transition: transform 0.3s;
+}
+.photo:hover img {
+  border-color: #ffaa00;
+  box-shadow: 0 0 30px #ffaa00, 0 0 50px #ff5500;
+  transform: scale(1.1);
 }
 
 .photo img {
-  width: 130px; height: 130px; object-fit: cover;
-  border-radius: 12px;
-  border: 4px solid #fff;
-  /* Brillo estilo Polaroid mágica */
-  box-shadow: 0 10px 20px rgba(0,0,0,0.5), 0 0 25px rgba(255, 200, 100, 0.6);
-  /* Doble animación: Mirar a la cámara + levitar */
-  animation: mirarAlFrente 35s linear infinite reverse, levitar 3s ease-in-out infinite alternate;
+  width: 120px; height: 120px; object-fit: cover;
+  border-radius: 50%; /* Fotos redondas como planetas */
+  border: 4px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 0 20px rgba(0,0,0,0.8), 0 0 30px rgba(255, 200, 100, 0.4);
+  animation: contrarrestarRotacion 40s linear infinite reverse, levitar 4s ease-in-out infinite alternate;
+  transition: all 0.3s ease;
+  pointer-events: auto; /* Para que detecte el clic */
 }
 
 .text {
-  color: #fff; font-size: 1.6rem; font-weight: bold; white-space: nowrap;
+  color: #fff; font-size: 1.5rem; font-weight: bold; white-space: nowrap;
   text-shadow: 0 0 10px #ffaa00, 0 0 20px #ff5500, 0 0 30px #ff0000;
-  animation: mirarAlFrenteTexto 35s linear infinite reverse, levitar 4s ease-in-out infinite alternate-reverse;
+  animation: contrarrestarRotacion 40s linear infinite reverse, levitarTexto 3s ease-in-out infinite alternate-reverse;
+  pointer-events: none;
 }
 
-@keyframes levitar {
-  0% { transform: translateY(-15px); }
-  100% { transform: translateY(15px); }
-}
-@keyframes mirarAlFrente {
+@keyframes contrarrestarRotacion {
   0% { transform: rotateY(0deg); }
   100% { transform: rotateY(360deg); }
 }
-@keyframes mirarAlFrenteTexto {
-  0% { transform: translate(-50%, -50%) rotateY(0deg); }
-  100% { transform: translate(-50%, -50%) rotateY(360deg); }
+@keyframes levitar { 0% { margin-top: -20px; } 100% { margin-top: 20px; } }
+@keyframes levitarTexto { 0% { margin-top: -10px; } 100% { margin-top: 10px; } }
+
+/* --- CARTA / MODAL (GLASSMORPHISM) --- */
+#letter-modal {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(10px); /* Efecto cristal borroso atrás */
+  display: flex; justify-content: center; align-items: center;
+  z-index: 10000;
+  opacity: 0; transition: opacity 0.5s;
+}
+#letter-modal.show { opacity: 1; display: flex !important; }
+
+.letter-content {
+  background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0));
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.2);
+  box-shadow: 0 8px 32px 0 rgba(255, 170, 0, 0.3);
+  border-radius: 20px;
+  padding: 30px;
+  max-width: 400px; width: 85%;
+  text-align: center;
+  position: relative;
+  transform: scale(0.8); transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+#letter-modal.show .letter-content { transform: scale(1); }
+
+#close-letter {
+  position: absolute; top: 15px; right: 20px;
+  background: none; border: none;
+  color: #fff; font-size: 1.5rem; cursor: pointer;
+  transition: color 0.3s;
+}
+#close-letter:hover { color: #ffaa00; }
+
+.letter-image-container img {
+  width: 100%; max-height: 250px; object-fit: cover;
+  border-radius: 15px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+  margin-bottom: 20px;
+  border: 2px solid #ffaa00;
+}
+
+#letter-title {
+  font-family: 'Dancing Script', cursive;
+  color: #ffaa00; font-size: 2.5rem; margin: 0 0 10px 0;
+  text-shadow: 0 2px 5px rgba(0,0,0,0.5);
+}
+
+#letter-text {
+  color: #fff; font-size: 1.2rem; line-height: 1.5;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.8);
 }
