@@ -1,4 +1,4 @@
-/* --- NUEVOS ESTILOS PARA LA PANTALLA DE INICIO --- */
+/* --- PANTALLA DE INICIO (Toca para iniciar) --- */
 #start-screen {
   position: absolute;
   top: 0; left: 0; width: 100%; height: 100%;
@@ -14,7 +14,7 @@
 
 #start-screen .sunflower {
   font-size: 5rem;
-  animation: latido 1.5s infinite;
+  animation: latidoGiratorio 1.5s infinite;
 }
 
 #start-screen p {
@@ -25,7 +25,148 @@
   text-shadow: 0 0 10px rgba(255, 170, 0, 0.8);
 }
 
+@keyframes latidoGiratorio {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+/* Clase para ocultar elementos con JavaScript */
 .hidden {
   display: none !important;
 }
-/* --- DE AQUÍ PARA ABAJO, DEJA TU CSS COMO ESTABA --- */
+
+/* --- FONDO DEL UNIVERSO --- */
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #050505;
+  /* Fondo de estrellas */
+  background-image: 
+    radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 3px),
+    radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 2px);
+  background-size: 100px 100px, 50px 50px;
+  background-position: 0 0, 25px 25px;
+  height: 100vh;
+  overflow: hidden;
+  font-family: 'Dosis', sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  perspective: 1000px; 
+  /* Estrellas en movimiento continuo */
+  animation: viajeEspacial 60s linear infinite;
+}
+
+@keyframes viajeEspacial {
+  from { background-position: 0 0, 25px 25px; }
+  to { background-position: -500px -500px, -225px -225px; }
+}
+
+/* --- SOL O CENTRO BRILLANTE --- */
+.sun {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100px;
+  height: 100px;
+  background: radial-gradient(circle, #fff3a1 0%, #ffaa00 50%, transparent 80%);
+  border-radius: 50%;
+  box-shadow: 0 0 60px #ffaa00, 0 0 120px #ff5500;
+  z-index: 1;
+  animation: palpitar 3s infinite alternate;
+}
+
+@keyframes palpitar {
+  from { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
+  to { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+}
+
+/* --- CONTENEDOR DE LA GALAXIA 3D --- */
+.galaxy-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* El ángulo de inclinación para que se vea en 3D desde arriba */
+  transform: rotateX(-15deg); 
+  transform-style: preserve-3d;
+}
+
+.galaxy {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  transform-style: preserve-3d;
+  /* El giro de toda la galaxia */
+  animation: girarGalaxia 25s linear infinite;
+}
+
+@keyframes girarGalaxia {
+  0% { transform: rotateY(0deg); }
+  100% { transform: rotateY(360deg); }
+}
+
+/* --- ESTRUCTURA DE FOTOS Y TEXTOS --- */
+.item {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform-style: preserve-3d;
+  /* Nacen desde el centro simulando una explosión (Big Bang) */
+  animation: nacerDelCentro 3.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes nacerDelCentro {
+  0% {
+    transform: translate(-50%, -50%) rotateY(var(--ry)) translateY(0px) translateZ(0px) scale(0);
+    opacity: 0;
+  }
+  100% {
+    transform: translate(-50%, -50%) rotateY(var(--ry)) translateY(var(--ty)) translateZ(var(--tz)) scale(1);
+    opacity: 1;
+  }
+}
+
+/* --- ESTILOS INDIVIDUALES: FOTOS --- */
+.photo img {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 15px;
+  border: 3px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.5), 0 0 40px rgba(255, 170, 0, 0.4);
+  /* Combinamos el mirar al frente con levitación suave */
+  animation: mirarAlFrente 25s linear infinite reverse, levitar 4s ease-in-out infinite alternate;
+}
+
+/* --- ESTILOS INDIVIDUALES: TEXTOS --- */
+.text {
+  color: #fff;
+  font-size: 1.5rem;
+  font-weight: bold;
+  white-space: nowrap;
+  text-shadow: 0 0 10px #ffaa00, 0 0 20px #ff5500;
+  /* Combinamos mirar al frente y levitación en sentido inverso para los textos */
+  animation: mirarAlFrenteTexto 25s linear infinite reverse, levitar 3s ease-in-out infinite alternate-reverse;
+}
+
+/* --- ANIMACIONES EXTRA --- */
+/* Rebote orgánico hacia arriba y abajo */
+@keyframes levitar {
+  0% { margin-top: -15px; }
+  100% { margin-top: 15px; }
+}
+
+/* Mantener elementos mirando hacia la pantalla contrarrestando el giro */
+@keyframes mirarAlFrente {
+  0% { transform: rotateY(0deg); }
+  100% { transform: rotateY(360deg); }
+}
+
+@keyframes mirarAlFrenteTexto {
+  0% { transform: translate(-50%, -50%) rotateY(0deg); }
+  100% { transform: translate(-50%, -50%) rotateY(360deg); }
+}
