@@ -1,4 +1,4 @@
-/* --- VARIABLES GLOBALES PARA CÁMARA --- */
+/* --- VARIABLES GLOBALES PARA CÁMARA ANTI-LAG --- */
 :root {
   --invRotX: 15deg; /* Compensa la inclinación inicial de la cámara */
   --invRotY: 0deg;
@@ -80,7 +80,7 @@ body {
   width: 0; height: 0; transform-style: preserve-3d;
 }
 
-/* --- SISTEMA DEL HOYO NEGRO --- */
+/* --- SISTEMA DEL HOYO NEGRO REALISTA Y SUS ANILLOS --- */
 .black-hole-system {
   position: absolute; top: 0; left: 0; transform-style: preserve-3d;
 }
@@ -129,7 +129,7 @@ body {
   100% { transform: rotateX(75deg) rotateZ(360deg); }
 }
 
-/* --- ELEMENTOS FLOTANTES --- */
+/* --- ELEMENTOS FLOTANTES (FOTOS Y TEXTO) --- */
 .item {
   position: absolute; top: 0; left: 0; transform-style: preserve-3d; opacity: 0;
   animation: nacerDelCentro 2.5s cubic-bezier(0.2, 1, 0.4, 1) forwards;
