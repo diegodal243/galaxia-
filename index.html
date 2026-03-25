@@ -3,24 +3,39 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nuestra Galaxia</title>
+  <title>Nuestra Galaxia Interactiva</title>
   
   <link rel="stylesheet" href="styles.css">
-  <link href="https://fonts.googleapis.com/css2?family=Dosis:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Dosis:wght@400;700&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
 </head>
 <body>
 
   <div id="start-screen">
     <div class="sunflower">🌻</div>
-    <p>Toca para iniciar</p>
+    <p>Toca para iniciar nuestro universo</p>
   </div>
 
-  <audio id="bg-music" src="assets/cancion.mp3"></audio>
+  <audio id="bg-music" src="assets/cancion.mp3" loop></audio>
 
-  <div id="galaxy-container" class="hidden">
-    <div class="sun"></div>
-    <div class="galaxy" id="galaxy">
+  <div id="scene" class="hidden">
+    <div id="stars-container"></div> 
+    
+    <div id="camera">
+      <div id="galaxy">
+        <div class="sun"></div>
+        </div>
+    </div>
+  </div>
+
+  <div id="letter-modal" class="hidden">
+    <div class="letter-content">
+      <button id="close-letter">✖</button>
+      <div class="letter-image-container">
+        <img id="letter-img" src="" alt="Recuerdo">
       </div>
+      <h2 id="letter-title">Para mi amor...</h2>
+      <p id="letter-text">Aquí va un mensaje hermoso.</p>
+    </div>
   </div>
 
   <script src="script.js"></script>
