@@ -1,10 +1,10 @@
 :root {
-  --rotX: -25deg; /* Empezamos mirando un poco desde arriba */
+  --rotX: -30deg; /* Ángulo ideal para ver el disco desde un poco arriba */
   --rotY: 0deg;
-  --invRotX: 25deg;
+  --invRotX: 30deg;
   --invRotY: 0deg;
   --diskAngle: 0deg;
-  --zoomZ: -400px; /* Zoom inicial (un poco alejado para ver lo inmenso que es) */
+  --zoomZ: -50px; /* ¡Más cerca del centro! */
 }
 
 body {
@@ -55,7 +55,6 @@ body {
 #camera {
   width: 0; height: 0; position: absolute; top: 50%; left: 50%;
   transform-style: preserve-3d;
-  /* El zoom ahora es distancia real (translateZ) */
   transform: translateZ(var(--zoomZ)) rotateX(var(--rotX)) rotateY(var(--rotY));
   transition: transform 0.1s ease-out; 
 }
@@ -63,7 +62,7 @@ body {
   animation: entradaEpica 4s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
 }
 @keyframes entradaEpica {
-  0% { transform: translateZ(-4000px) rotateX(-80deg) rotateY(180deg); opacity: 0; }
+  0% { transform: translateZ(-3000px) rotateX(-80deg) rotateY(180deg); opacity: 0; }
   100% { transform: translateZ(var(--zoomZ)) rotateX(var(--rotX)) rotateY(var(--rotY)); opacity: 1; }
 }
 
