@@ -1,19 +1,18 @@
-/* --- VARIABLES GLOBALES PARA CÁMARA ANTI-LAG --- */
+/* Variables para la rotación Anti-Lag */
 :root {
-  --invRotX: 15deg; /* Compensa la inclinación inicial de la cámara */
+  --invRotX: 15deg;
   --invRotY: 0deg;
 }
 
 body {
   margin: 0; padding: 0;
-  background-color: #010005; /* El vacío del espacio profundo */
+  background-color: #010005; 
   height: 100vh; overflow: hidden;
   font-family: 'Dosis', sans-serif;
   user-select: none;
 }
 .hidden { display: none !important; }
 
-/* --- PANTALLA INICIAL --- */
 #start-screen {
   position: absolute; top: 0; left: 0; width: 100%; height: 100%;
   background-color: #010005;
@@ -36,7 +35,6 @@ body {
 }
 @keyframes parpadeo { 0% { opacity: 0.5; } 100% { opacity: 1; } }
 
-/* --- ESCENARIO 3D INTERACTIVO --- */
 #scene {
   position: absolute; width: 100%; height: 100%;
   perspective: 1200px;
@@ -53,7 +51,7 @@ body {
 .star {
   position: absolute; background-color: #fff;
   border-radius: 50%;
-  box-shadow: 0 0 8px #fff, 0 0 15px #00ffff; /* Brillo tipo estrella real */
+  box-shadow: 0 0 8px #fff, 0 0 15px #00ffff; 
   animation: titilar infinite alternate;
 }
 @keyframes titilar {
@@ -74,30 +72,24 @@ body {
   100% { transform: scale(1) rotateX(-15deg) rotateY(0deg); opacity: 1; }
 }
 
-/* ¡GALAXIA SIN ROTACIÓN CONTINUA PARA QUITAR EL LAG! */
 #galaxy {
   position: absolute; top: 50%; left: 50%;
   width: 0; height: 0; transform-style: preserve-3d;
 }
 
-/* --- SISTEMA DEL HOYO NEGRO REALISTA Y SUS ANILLOS --- */
 .black-hole-system {
   position: absolute; top: 0; left: 0; transform-style: preserve-3d;
 }
 
-/* El círculo oscuro central */
 .black-hole {
   position: absolute; top: -50px; left: -50px;
   width: 100px; height: 100px;
   background-color: #000;
   border-radius: 50%;
-  /* El aura de luz atrapada por la gravedad */
   box-shadow: 0 0 15px #fff, 0 0 30px #ffcc00, 0 0 60px #ff5500, 0 0 90px #aa00ff;
-  /* El hoyo negro siempre mira a la cámara para verse perfectamente redondo */
   transform: rotateY(var(--invRotY)) rotateX(var(--invRotX));
 }
 
-/* Los anillos de luz que giran LENTO */
 .ring {
   position: absolute; border-radius: 50%;
   border: 2px solid transparent; transform-style: preserve-3d;
@@ -107,7 +99,7 @@ body {
   border-top: 5px solid rgba(255, 200, 100, 0.8);
   border-bottom: 2px solid rgba(150, 50, 255, 0.5);
   box-shadow: 0 0 30px rgba(255, 150, 50, 0.4), inset 0 0 30px rgba(255, 150, 50, 0.4);
-  animation: giroAnillo 30s linear infinite; /* 30 segundos, muy lento */
+  animation: giroAnillo 30s linear infinite; 
 }
 .ring-inner {
   top: -140px; left: -140px; width: 280px; height: 280px;
@@ -124,12 +116,10 @@ body {
 }
 
 @keyframes giroAnillo {
-  /* Mantienen un ángulo de 75 grados para verse como un disco plano y rotan sobre su propio eje */
   0% { transform: rotateX(75deg) rotateZ(0deg); }
   100% { transform: rotateX(75deg) rotateZ(360deg); }
 }
 
-/* --- ELEMENTOS FLOTANTES (FOTOS Y TEXTO) --- */
 .item {
   position: absolute; top: 0; left: 0; transform-style: preserve-3d; opacity: 0;
   animation: nacerDelCentro 2.5s cubic-bezier(0.2, 1, 0.4, 1) forwards;
@@ -150,7 +140,6 @@ body {
   border-radius: 12px; aspect-ratio: 1/1;
   border: 4px solid rgba(255, 255, 255, 0.8);
   box-shadow: 0 10px 20px rgba(0,0,0,0.8), 0 0 30px rgba(255, 200, 100, 0.4);
-  /* MAGIA ANTI-LAG: Anula la rotación de su contenedor y contrarresta la cámara */
   transform: rotateY(calc(-1 * var(--ry))) rotateY(var(--invRotY)) rotateX(var(--invRotX));
   animation: levitar 4s ease-in-out infinite alternate;
   pointer-events: auto; transition: transform 0.1s;
@@ -167,7 +156,6 @@ body {
 @keyframes levitar { 0% { margin-top: -15px; } 100% { margin-top: 15px; } }
 @keyframes levitarTexto { 0% { margin-top: -10px; } 100% { margin-top: 10px; } }
 
-/* --- CARTA / MODAL (GLASSMORPHISM) --- */
 #letter-modal {
   position: absolute; top: 0; left: 0; width: 100%; height: 100%;
   background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
