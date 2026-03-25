@@ -13,43 +13,49 @@ const letterText = document.getElementById('letter-text');
 
 // Configuración de la Galaxia
 const totalFotos = 15;
-// Escribe aquí un mensajito diferente para cada foto si quieres:
+// --- NUEVAS FRASES: ESPECÍFICAS PARA MEJOR AMIGA ---
 const mensajesFotos = [
-  "Este día fue mágico, me encantó cada segundo a tu lado.",
-  "Amo tu sonrisa en esta foto, ilumina todo mi mundo.",
-  "Un recuerdo inolvidable. Siempre quiero crear más momentos así.",
-  "Aquí me di cuenta de lo afortunado que soy de tenerte.",
-  "Mi lugar favorito en el mundo es donde sea que estés tú.",
-  "Eres mi casualidad más hermosa.",
-  "Conmigo siempre vas a estar a salvo.",
-  "Cada vez que veo esta foto me vuelvo a enamorar.",
-  "Gracias por ser mi persona incondicional.",
-  "La vida es mucho mejor desde que tú estás en ella.",
-  "Eres mi rayito de sol en los días nublados.",
-  "Me haces querer ser una mejor persona cada día.",
+  "Gracias por estar siempre, en las buenas y en las malas.",
+  "La amistad más bonita que la vida me pudo regalar es la tuya.",
+  "Eres esa hermana que la vida me permitió elegir.",
   "Nuestras locuras son mis recuerdos favoritos.",
-  "No te cambiaría por nada del universo.",
-  "Te amo hoy, mañana y siempre. ✨"
+  "Aprecio cada segundo que pasamos juntas. ¡Gracias por tanto!",
+  "Una mejor amiga es la que sabe tu historia y la sigue escribiendo contigo.",
+  "Inseparables es poco para describir nuestra amistad.",
+  "Eres la única que me entiende sin que yo diga nada.",
+  "Mejor amiga: mi confidente, mi consejera, mi familia.",
+  "Por mil años más de risas y aventuras compartidas.",
+  "Tu amistad es un regalo que cuido todos los días.",
+  "Amo tu sonrisa en esta foto, ilumina mi día.",
+  "Eres mi persona favorita en el mundo.",
+  "Gracias por no dejarme sola en ninguna de mis ocurrencias.",
+  "¡Te adoro, mi mejor amiga del alma! ✨💖"
 ];
 
-const frasesFlotantes = ["Mi universo", "Te amo", "Siempre juntos", "Luz de mi vida", "Mi todo"];
+const frasesFlotantes = ["Inseparables ♾️", "Mejor Amiga 👯‍♀️", "Gracias por tanto 💖", "Locuras Juntas 🥰", "Siempre Leal 🤝"];
 
-// --- INICIAR EXPERIENCIA ---
+// --- INICIAR EXPERIENCIA (NUEVA ANIMACIÓN DE ENTRADA ÉPICA) ---
 startScreen.addEventListener('click', () => {
+  // 1. Zoom out y desvanecer la pantalla de inicio
+  startScreen.style.transform = 'scale(0)';
   startScreen.style.opacity = '0';
+  
+  bgMusic.play().catch(e => console.log("Audio no reproducido"));
+  crearEstrellas();
+  crearUniverso();
+
+  // 2. Pequeño retraso para que la galaxia empiece oculta y luego haga la entrada
   setTimeout(() => {
     startScreen.style.display = 'none';
     scene.classList.remove('hidden');
-    bgMusic.play().catch(e => console.log("Audio no reproducido"));
-    
-    crearEstrellas();
-    crearUniverso();
-  }, 1000);
+    // 3. ¡Añadimos la animación de entrada épica a la cámara!
+    camera.classList.add('entry-animation');
+  }, 1000); // Espera 1 segundo a que se desvanezca el inicio
 });
 
 // --- CREAR ESTRELLAS DE FONDO ---
 function crearEstrellas() {
-  const numEstrellas = 200; // Puedes poner más si quieres!
+  const numEstrellas = 250; // ¡Aún más estrellas para fotorrealismo!
   for (let i = 0; i < numEstrellas; i++) {
     const star = document.createElement('div');
     star.className = 'star';
@@ -155,12 +161,14 @@ let startX, startY;
 
 // Iniciar arrastre
 scene.addEventListener('mousedown', (e) => {
+  if (camera.classList.contains('entry-animation')) return; // No mover durante la entrada
   isDragging = true;
   startX = e.clientX;
   startY = e.clientY;
 });
 
 scene.addEventListener('touchstart', (e) => {
+  if (camera.classList.contains('entry-animation')) return;
   isDragging = true;
   startX = e.touches[0].clientX;
   startY = e.touches[0].clientY;
@@ -168,7 +176,7 @@ scene.addEventListener('touchstart', (e) => {
 
 // Arrastrar
 const moverCamara = (x, y) => {
-  if (!isDragging) return;
+  if (!isDragging || camera.classList.contains('entry-animation')) return;
   const deltaX = x - startX;
   const deltaY = y - startY;
   
@@ -196,6 +204,7 @@ window.addEventListener('touchend', detenerArrastre);
 
 // Hacer Zoom con rueda del ratón
 scene.addEventListener('wheel', (e) => {
+  if (camera.classList.contains('entry-animation')) return;
   e.preventDefault();
   zoom += e.deltaY * -0.001;
   // Limites del zoom
