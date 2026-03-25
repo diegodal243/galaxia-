@@ -1,33 +1,34 @@
-/* --- RESET Y FUENTES --- */
-body {
-  margin: 0; padding: 0;
-  background-color: #020108; /* Azul espacial muy oscuro */
-  height: 100vh;
-  overflow: hidden;
-  font-family: 'Dosis', sans-serif;
-  user-select: none; /* Evita que se seleccione el texto al arrastrar */
+/* --- VARIABLES GLOBALES PARA CÁMARA --- */
+:root {
+  --invRotX: 15deg; /* Compensa la inclinación inicial de la cámara */
+  --invRotY: 0deg;
 }
 
+body {
+  margin: 0; padding: 0;
+  background-color: #010005; /* El vacío del espacio profundo */
+  height: 100vh; overflow: hidden;
+  font-family: 'Dosis', sans-serif;
+  user-select: none;
+}
 .hidden { display: none !important; }
 
-/* --- PANTALLA INICIAL (Nuevos estilos para el girasol) --- */
+/* --- PANTALLA INICIAL --- */
 #start-screen {
   position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-  background-color: #020108;
+  background-color: #010005;
   display: flex; flex-direction: column; justify-content: center; align-items: center;
   z-index: 9999; cursor: pointer; transition: opacity 1s ease;
 }
 #start-screen .sunflower {
-  font-size: 8rem; /* ¡Más grande! */
-  animation: latidoGiratorio 1.5s infinite;
-  filter: drop-shadow(0 0 30px #ffaa00) saturate(200%); /* ¡Más colorido! */
+  font-size: 8rem; animation: latidoGiratorio 1.5s infinite;
+  filter: drop-shadow(0 0 30px #ffaa00) saturate(200%);
 }
 #start-screen p {
   color: #ffaa00; font-size: 2.2rem; margin-top: 30px;
   text-shadow: 0 0 15px rgba(255, 170, 0, 0.8);
   animation: parpadeo 2s infinite alternate;
 }
-
 @keyframes latidoGiratorio {
   0% { transform: scale(1) rotate(0deg); }
   50% { transform: scale(1.1) rotate(5deg); }
@@ -38,181 +39,159 @@ body {
 /* --- ESCENARIO 3D INTERACTIVO --- */
 #scene {
   position: absolute; width: 100%; height: 100%;
-  perspective: 1000px;
+  perspective: 1200px;
   display: flex; justify-content: center; align-items: center;
-  cursor: grab; /* Cursor de "agarrar" para rotar */
+  cursor: grab;
 }
 #scene:active { cursor: grabbing; }
 
-/* Contenedor de estrellas de fondo */
 #stars-container {
   position: absolute; width: 200vw; height: 200vh;
   top: -50vh; left: -50vw;
-  pointer-events: none; /* Que no interfiera con los clics */
-  transform: translateZ(-600px);
+  pointer-events: none; transform: translateZ(-600px);
 }
-
 .star {
-  position: absolute;
-  background-color: #fff;
+  position: absolute; background-color: #fff;
   border-radius: 50%;
-  box-shadow: 0 0 5px #fff, 0 0 10px #ffddaa;
+  box-shadow: 0 0 8px #fff, 0 0 15px #00ffff; /* Brillo tipo estrella real */
   animation: titilar infinite alternate;
 }
 @keyframes titilar {
-  0% { opacity: 0.2; transform: scale(0.8); }
-  100% { opacity: 1; transform: scale(1.2); }
+  0% { opacity: 0.1; transform: scale(0.5); }
+  100% { opacity: 1; transform: scale(1.5); }
 }
 
-/* --- CAMARA Y GALAXIA (Cambios para la animación de entrada) --- */
 #camera {
-  width: 100%; height: 100%;
-  transform-style: preserve-3d;
-  /* El JS modificará estas variables al hacer zoom o arrastrar */
+  width: 100%; height: 100%; transform-style: preserve-3d;
   transform: scale(var(--zoom, 1)) rotateX(var(--rotX, -15deg)) rotateY(var(--rotY, 0deg));
-  transition: transform 0.1s ease-out; /* Suavidad al mover */
+  transition: transform 0.1s ease-out;
 }
-
-/* Animación de entrada: Spin + Zoom-in */
 #camera.entry-animation {
-  animation: entradaEpica 3s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+  animation: entradaEpica 3.5s cubic-bezier(0.23, 1, 0.32, 1) forwards;
 }
-
 @keyframes entradaEpica {
-  0% { transform: scale(3) rotateX(-50deg) rotateY(180deg); opacity: 0; }
+  0% { transform: scale(4) rotateX(-60deg) rotateY(180deg); opacity: 0; }
   100% { transform: scale(1) rotateX(-15deg) rotateY(0deg); opacity: 1; }
 }
 
+/* ¡GALAXIA SIN ROTACIÓN CONTINUA PARA QUITAR EL LAG! */
 #galaxy {
   position: absolute; top: 50%; left: 50%;
-  width: 0; height: 0;
-  transform-style: preserve-3d;
-  animation: rotacionInfinita 40s linear infinite;
+  width: 0; height: 0; transform-style: preserve-3d;
 }
 
-@keyframes rotacionInfinita {
-  0% { transform: rotateY(0deg); }
-  100% { transform: rotateY(360deg); }
+/* --- SISTEMA DEL HOYO NEGRO --- */
+.black-hole-system {
+  position: absolute; top: 0; left: 0; transform-style: preserve-3d;
 }
 
-/* --- EL SOL CENTRAL (Nuevos estilos fotorrealistas de NASA) --- */
-.sun {
+/* El círculo oscuro central */
+.black-hole {
   position: absolute; top: -50px; left: -50px;
   width: 100px; height: 100px;
-  /* Textura ardiente fotorrealista usando degradados radiales complejos */
-  background: 
-    radial-gradient(circle at 50% 50%, #fff 0%, #fff394 15%, #ffcc00 30%, #ff8800 50%, transparent 80%),
-    radial-gradient(circle at 50% 50%, #ff5500 0%, #330000 60%);
+  background-color: #000;
   border-radius: 50%;
-  box-shadow: 0 0 100px #ffaa00, 0 0 200px #ff5500, inset 0 0 30px #fff;
-  animation: palpitarSol 3s infinite alternate;
+  /* El aura de luz atrapada por la gravedad */
+  box-shadow: 0 0 15px #fff, 0 0 30px #ffcc00, 0 0 60px #ff5500, 0 0 90px #aa00ff;
+  /* El hoyo negro siempre mira a la cámara para verse perfectamente redondo */
+  transform: rotateY(var(--invRotY)) rotateX(var(--invRotX));
 }
-@keyframes palpitarSol {
-  0% { transform: scale(0.9); opacity: 0.8; }
-  100% { transform: scale(1.1); opacity: 1; }
+
+/* Los anillos de luz que giran LENTO */
+.ring {
+  position: absolute; border-radius: 50%;
+  border: 2px solid transparent; transform-style: preserve-3d;
+}
+.ring-outer {
+  top: -180px; left: -180px; width: 360px; height: 360px;
+  border-top: 5px solid rgba(255, 200, 100, 0.8);
+  border-bottom: 2px solid rgba(150, 50, 255, 0.5);
+  box-shadow: 0 0 30px rgba(255, 150, 50, 0.4), inset 0 0 30px rgba(255, 150, 50, 0.4);
+  animation: giroAnillo 30s linear infinite; /* 30 segundos, muy lento */
+}
+.ring-inner {
+  top: -140px; left: -140px; width: 280px; height: 280px;
+  border-right: 4px solid rgba(255, 100, 50, 0.9);
+  border-left: 2px solid rgba(0, 255, 255, 0.5);
+  box-shadow: 0 0 20px rgba(255, 100, 0, 0.6), inset 0 0 20px rgba(255, 100, 0, 0.6);
+  animation: giroAnillo 20s linear infinite reverse;
+}
+.ring-core {
+  top: -90px; left: -90px; width: 180px; height: 180px;
+  border-bottom: 6px solid #fff;
+  box-shadow: 0 0 20px #fff, inset 0 0 20px #fff;
+  animation: giroAnillo 10s linear infinite;
+}
+
+@keyframes giroAnillo {
+  /* Mantienen un ángulo de 75 grados para verse como un disco plano y rotan sobre su propio eje */
+  0% { transform: rotateX(75deg) rotateZ(0deg); }
+  100% { transform: rotateX(75deg) rotateZ(360deg); }
 }
 
 /* --- ELEMENTOS FLOTANTES --- */
 .item {
-  position: absolute; top: 0; left: 0;
-  transform-style: preserve-3d;
-  opacity: 0;
-  animation: nacerDelCentro 2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  position: absolute; top: 0; left: 0; transform-style: preserve-3d; opacity: 0;
+  animation: nacerDelCentro 2.5s cubic-bezier(0.2, 1, 0.4, 1) forwards;
 }
-
 @keyframes nacerDelCentro {
   0% { transform: rotateY(var(--ry)) translateY(0px) translateZ(0px) scale(0); opacity: 0; }
   100% { transform: rotateY(var(--ry)) translateY(var(--ty)) translateZ(var(--tz)) scale(1); opacity: 1; }
 }
 
-.photo {
-  cursor: pointer; /* Indica que se puede clickear */
-  transition: transform 0.3s;
-}
+.photo { cursor: pointer; transition: transform 0.3s; }
 .photo:hover img {
-  border-color: #ffaa00;
-  box-shadow: 0 0 30px #ffaa00, 0 0 50px #ff5500;
-  transform: scale(1.1);
+  border-color: #ffaa00; box-shadow: 0 0 30px #ffaa00, 0 0 50px #ff5500;
+  transform: rotateY(calc(-1 * var(--ry))) rotateY(var(--invRotY)) rotateX(var(--invRotX)) scale(1.15);
 }
 
-/* --- LAS FOTOS: AHORA CUADRADAS CON ESQUINAS REDONDAS (Estilo Polaroid Mágica) --- */
 .photo img {
   width: 120px; height: 120px; object-fit: cover;
-  /* Eliminamos el border-radius: 50% y ponemos esquinas suaves */
-  border-radius: 12px;
-  aspect-ratio: 1/1; /* Asegura que sean cuadradas */
+  border-radius: 12px; aspect-ratio: 1/1;
   border: 4px solid rgba(255, 255, 255, 0.8);
   box-shadow: 0 10px 20px rgba(0,0,0,0.8), 0 0 30px rgba(255, 200, 100, 0.4);
-  /* Doble animación: Mirar a la cámara + levitar */
-  animation: contrarrestarRotacion 40s linear infinite reverse, levitar 4s ease-in-out infinite alternate;
-  transition: all 0.3s ease;
-  pointer-events: auto; /* Para que detecte el clic */
+  /* MAGIA ANTI-LAG: Anula la rotación de su contenedor y contrarresta la cámara */
+  transform: rotateY(calc(-1 * var(--ry))) rotateY(var(--invRotY)) rotateX(var(--invRotX));
+  animation: levitar 4s ease-in-out infinite alternate;
+  pointer-events: auto; transition: transform 0.1s;
 }
 
-/* --- LAS FRASES: AHORA PARA MEJOR AMIGA --- */
 .text {
   color: #fff; font-size: 1.5rem; font-weight: bold; white-space: nowrap;
   text-shadow: 0 0 10px #ffaa00, 0 0 20px #ff5500, 0 0 30px #ff0000;
-  animation: contrarrestarRotacion 40s linear infinite reverse, levitarTexto 3s ease-in-out infinite alternate-reverse;
-  pointer-events: none;
+  transform: rotateY(calc(-1 * var(--ry))) rotateY(var(--invRotY)) rotateX(var(--invRotX));
+  animation: levitarTexto 3s ease-in-out infinite alternate-reverse;
+  pointer-events: none; transition: transform 0.1s;
 }
 
-@keyframes contrarrestarRotacion {
-  0% { transform: rotateY(0deg); }
-  100% { transform: rotateY(360deg); }
-}
-@keyframes levitar { 0% { margin-top: -20px; } 100% { margin-top: 20px; } }
+@keyframes levitar { 0% { margin-top: -15px; } 100% { margin-top: 15px; } }
 @keyframes levitarTexto { 0% { margin-top: -10px; } 100% { margin-top: 10px; } }
 
 /* --- CARTA / MODAL (GLASSMORPHISM) --- */
 #letter-modal {
   position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(10px); /* Efecto cristal borroso atrás */
-  display: flex; justify-content: center; align-items: center;
-  z-index: 10000;
+  background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+  display: flex; justify-content: center; align-items: center; z-index: 10000;
   opacity: 0; transition: opacity 0.5s;
 }
 #letter-modal.show { opacity: 1; display: flex !important; }
-
 .letter-content {
   background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0));
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255,255,255,0.2);
-  box-shadow: 0 8px 32px 0 rgba(255, 170, 0, 0.3);
-  border-radius: 20px;
-  padding: 30px;
-  max-width: 400px; width: 85%;
-  text-align: center;
-  position: relative;
+  border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 8px 32px 0 rgba(255, 170, 0, 0.3);
+  border-radius: 20px; padding: 30px; max-width: 400px; width: 85%; text-align: center; position: relative;
   transform: scale(0.8); transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 #letter-modal.show .letter-content { transform: scale(1); }
-
 #close-letter {
-  position: absolute; top: 15px; right: 20px;
-  background: none; border: none;
-  color: #fff; font-size: 1.5rem; cursor: pointer;
-  transition: color 0.3s;
+  position: absolute; top: 15px; right: 20px; background: none; border: none;
+  color: #fff; font-size: 1.5rem; cursor: pointer; transition: color 0.3s;
 }
 #close-letter:hover { color: #ffaa00; }
-
 .letter-image-container img {
-  width: 100%; max-height: 250px; object-fit: cover;
-  border-radius: 15px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-  margin-bottom: 20px;
-  border: 2px solid #ffaa00;
+  width: 100%; max-height: 250px; object-fit: cover; border-radius: 15px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.5); margin-bottom: 20px; border: 2px solid #ffaa00;
 }
-
 #letter-title {
-  font-family: 'Dancing Script', cursive;
-  color: #ffaa00; font-size: 2.5rem; margin: 0 0 10px 0;
-  text-shadow: 0 2px 5px rgba(0,0,0,0.5);
+  font-family: 'Dancing Script', cursive; color: #ffaa00; font-size: 2.5rem; margin: 0 0 10px 0; text-shadow: 0 2px 5px rgba(0,0,0,0.5);
 }
-
-#letter-text {
-  color: #fff; font-size: 1.2rem; line-height: 1.5;
-  text-shadow: 0 1px 3px rgba(0,0,0,0.8);
-}
+#letter-text { color: #fff; font-size: 1.2rem; line-height: 1.5; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
