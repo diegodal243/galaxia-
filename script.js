@@ -5,15 +5,12 @@ const galaxy = document.getElementById('galaxy');
 const bgMusic = document.getElementById('bg-music');
 const starsContainer = document.getElementById('stars-container');
 
-// Elementos de la Carta
 const letterModal = document.getElementById('letter-modal');
 const closeLetterBtn = document.getElementById('close-letter');
 const letterImg = document.getElementById('letter-img');
 const letterText = document.getElementById('letter-text');
 
-// Configuración de la Galaxia
 const totalFotos = 15;
-// --- NUEVAS FRASES: ESPECÍFICAS PARA MEJOR AMIGA ---
 const mensajesFotos = [
   "Gracias por estar siempre, en las buenas y en las malas.",
   "La amistad más bonita que la vida me pudo regalar es la tuya.",
@@ -34,9 +31,7 @@ const mensajesFotos = [
 
 const frasesFlotantes = ["Inseparables ♾️", "Mejor Amiga 👯‍♀️", "Gracias por tanto 💖", "Locuras Juntas 🥰", "Siempre Leal 🤝"];
 
-// --- INICIAR EXPERIENCIA (NUEVA ANIMACIÓN DE ENTRADA ÉPICA) ---
 startScreen.addEventListener('click', () => {
-  // 1. Zoom out y desvanecer la pantalla de inicio
   startScreen.style.transform = 'scale(0)';
   startScreen.style.opacity = '0';
   
@@ -44,27 +39,25 @@ startScreen.addEventListener('click', () => {
   crearEstrellas();
   crearUniverso();
 
-  // 2. Pequeño retraso para que la galaxia empiece oculta y luego haga la entrada
   setTimeout(() => {
     startScreen.style.display = 'none';
     scene.classList.remove('hidden');
-    // 3. ¡Añadimos la animación de entrada épica a la cámara!
     camera.classList.add('entry-animation');
-  }, 1000); // Espera 1 segundo a que se desvanezca el inicio
+  }, 1000);
 });
 
-// --- CREAR ESTRELLAS DE FONDO ---
+// Crear un mar de estrellas estáticas pero parpadeantes (optimizado para evitar lag)
 function crearEstrellas() {
-  const numEstrellas = 250; // ¡Aún más estrellas para fotorrealismo!
+  const numEstrellas = 300; 
   for (let i = 0; i < numEstrellas; i++) {
     const star = document.createElement('div');
     star.className = 'star';
     
     const x = Math.random() * 100;
     const y = Math.random() * 100;
-    const size = Math.random() * 3;
-    const delay = Math.random() * 3;
-    const duration = 1 + Math.random() * 3;
+    const size = Math.random() * 2.5;
+    const delay = Math.random() * 5;
+    const duration = 2 + Math.random() * 4;
 
     star.style.left = `${x}%`;
     star.style.top = `${y}%`;
@@ -77,20 +70,15 @@ function crearEstrellas() {
   }
 }
 
-// --- CREAR FOTOS Y TEXTOS ---
 function crearUniverso() {
-  // Generar Fotos
   for (let i = 0; i < totalFotos; i++) {
     const item = document.createElement('div');
     item.className = 'item photo';
     
-    // Matemática para espiral esférica
     const phi = Math.acos(-1 + (2 * i) / totalFotos);
     const theta = Math.sqrt(totalFotos * Math.PI) * phi;
+    const radio = 350; // Esfera más grande para que respiren las fotos
     
-    const radio = 300; // Qué tan grande es la esfera
-    
-    // Convertir coordenadas esféricas a CSS (Rotaciones y traslaciones)
     const ry = (theta * 180) / Math.PI; 
     const ty = (radio * Math.cos(phi));
     const tz = radio * Math.sin(phi);
@@ -102,23 +90,21 @@ function crearUniverso() {
 
     item.innerHTML = `<img src="assets/foto${i + 1}.jpg" alt="Recuerdo">`;
     
-    // --- EVENTO PARA ABRIR LA CARTA ---
     item.addEventListener('click', (e) => {
-      e.stopPropagation(); // Evita que se mueva la cámara al hacer clic
+      e.stopPropagation(); 
       abrirCarta(`assets/foto${i + 1}.jpg`, mensajesFotos[i]);
     });
 
     galaxy.appendChild(item);
   }
 
-  // Generar Textos
   frasesFlotantes.forEach((frase, index) => {
     const item = document.createElement('div');
     item.className = 'item text';
     
     const angle = (index * (360 / frasesFlotantes.length));
-    const ty = (Math.random() - 0.5) * 400;
-    const tz = 350 + Math.random() * 50;
+    const ty = (Math.random() - 0.5) * 500;
+    const tz = 400 + Math.random() * 50;
 
     item.style.setProperty('--ry', `${angle}deg`);
     item.style.setProperty('--ty', `${ty}px`);
@@ -130,12 +116,10 @@ function crearUniverso() {
   });
 }
 
-// --- LOGICA DE LA CARTA ---
 function abrirCarta(imgSrc, mensaje) {
   letterImg.src = imgSrc;
   letterText.textContent = mensaje;
   letterModal.classList.remove('hidden');
-  // Pequeño retraso para que la animación CSS funcione
   setTimeout(() => letterModal.classList.add('show'), 10); 
 }
 
@@ -143,8 +127,6 @@ closeLetterBtn.addEventListener('click', () => {
   letterModal.classList.remove('show');
   setTimeout(() => letterModal.classList.add('hidden'), 500);
 });
-
-// Cerrar tocando afuera de la carta
 letterModal.addEventListener('click', (e) => {
   if(e.target === letterModal) {
     letterModal.classList.remove('show');
@@ -152,63 +134,56 @@ letterModal.addEventListener('click', (e) => {
   }
 });
 
-// --- CONTROLES DE CÁMARA (ZOOM Y ROTACIÓN) ---
+// --- CONTROLES DE CÁMARA ANTI-LAG ---
 let rotX = -15; 
 let rotY = 0; 
 let zoom = 1;
 let isDragging = false;
 let startX, startY;
 
-// Iniciar arrastre
 scene.addEventListener('mousedown', (e) => {
-  if (camera.classList.contains('entry-animation')) return; // No mover durante la entrada
-  isDragging = true;
-  startX = e.clientX;
-  startY = e.clientY;
+  if (camera.classList.contains('entry-animation')) return; 
+  isDragging = true; startX = e.clientX; startY = e.clientY;
 });
 
 scene.addEventListener('touchstart', (e) => {
   if (camera.classList.contains('entry-animation')) return;
-  isDragging = true;
-  startX = e.touches[0].clientX;
-  startY = e.touches[0].clientY;
+  isDragging = true; startX = e.touches[0].clientX; startY = e.touches[0].clientY;
 });
 
-// Arrastrar
 const moverCamara = (x, y) => {
   if (!isDragging || camera.classList.contains('entry-animation')) return;
   const deltaX = x - startX;
   const deltaY = y - startY;
   
-  rotY += deltaX * 0.5; // Sensibilidad horizontal
-  rotX -= deltaY * 0.5; // Sensibilidad vertical
+  rotY += deltaX * 0.4; 
+  rotX -= deltaY * 0.4; 
   
-  // Limitar rotación arriba/abajo
   if(rotX > 60) rotX = 60;
   if(rotX < -60) rotX = -60;
 
   camera.style.setProperty('--rotX', `${rotX}deg`);
   camera.style.setProperty('--rotY', `${rotY}deg`);
+
+  // ¡MAGIA! Actualizamos la rotación inversa en CSS para que las fotos y el hoyo negro siempre te miren
+  document.documentElement.style.setProperty('--invRotX', `${-rotX}deg`);
+  document.documentElement.style.setProperty('--invRotY', `${-rotY}deg`);
   
-  startX = x;
-  startY = y;
+  startX = x; startY = y;
 };
 
 scene.addEventListener('mousemove', (e) => moverCamara(e.clientX, e.clientY));
 scene.addEventListener('touchmove', (e) => moverCamara(e.touches[0].clientX, e.touches[0].clientY));
 
-// Soltar arrastre
 const detenerArrastre = () => isDragging = false;
 window.addEventListener('mouseup', detenerArrastre);
 window.addEventListener('touchend', detenerArrastre);
 
-// Hacer Zoom con rueda del ratón
 scene.addEventListener('wheel', (e) => {
   if (camera.classList.contains('entry-animation')) return;
   e.preventDefault();
   zoom += e.deltaY * -0.001;
-  // Limites del zoom
-  if (zoom < 0.5) zoom = 0.5;
+  if (zoom < 0.4) zoom = 0.4;
   if (zoom > 3) zoom = 3;
   camera.style.setProperty('--zoom', zoom);
 });
