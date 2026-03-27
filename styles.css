@@ -4,9 +4,9 @@
   --invRotX: 25deg;
   --invRotY: 0deg;
   --diskAngle: 0deg;
-  --zoomZ: 100px; 
-  --panX: 0px; /* Para moverse a los lados */
-  --panY: 0px; /* Para moverse arriba/abajo */
+  --zoomZ: 150px; 
+  --panX: 0px; 
+  --panY: 0px; 
 }
 
 body {
@@ -43,61 +43,46 @@ body {
 /* --- CONTROLES DE INTERFAZ (UI) --- */
 #ui-controls {
   position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-  pointer-events: none; /* Para que no bloquee arrastrar la cámara */
-  z-index: 5000;
+  pointer-events: none; z-index: 5000;
 }
-
 .pan-controls {
   position: absolute; bottom: 30px; left: 30px;
-  display: flex; flex-direction: column; align-items: center; gap: 5px;
-  pointer-events: auto;
+  display: flex; flex-direction: column; align-items: center; gap: 5px; pointer-events: auto;
 }
 .pan-horizontal { display: flex; gap: 30px; }
-
 .zoom-controls {
   position: absolute; top: 30px; right: 30px;
   display: flex; flex-direction: column; align-items: center; gap: 15px;
   background: rgba(255, 255, 255, 0.05); padding: 15px; border-radius: 20px;
-  backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.1);
-  pointer-events: auto;
+  backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.1); pointer-events: auto;
 }
-
 #ui-controls button {
   background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255,255,255,0.2);
   color: #fff; width: 40px; height: 40px; border-radius: 50%;
-  font-size: 1.2rem; cursor: pointer; transition: all 0.2s;
-  backdrop-filter: blur(5px);
+  font-size: 1.2rem; cursor: pointer; transition: all 0.2s; backdrop-filter: blur(5px);
 }
 #ui-controls button:hover { background: rgba(255, 170, 0, 0.5); transform: scale(1.1); }
 #ui-controls button:active { transform: scale(0.9); }
-
-/* Slider vertical para zoom */
 input[type=range][orient=vertical] {
-  writing-mode: bt-lr; /* IE */
-  -webkit-appearance: slider-vertical; /* WebKit */
-  width: 8px; height: 120px; padding: 0 5px;
+  writing-mode: bt-lr; -webkit-appearance: slider-vertical; width: 8px; height: 120px; padding: 0 5px;
 }
 
 /* --- ESCENARIO Y CÁMARA --- */
 #scene {
   position: absolute; width: 100%; height: 100%;
-  perspective: 1200px; display: flex; justify-content: center; align-items: center;
-  cursor: grab;
+  perspective: 1200px; display: flex; justify-content: center; align-items: center; cursor: grab;
 }
 #scene:active { cursor: grabbing; }
 
 #bg-stars {
-  position: absolute; width: 200vw; height: 200vh;
-  top: -50vh; left: -50vw; pointer-events: none; transform: translateZ(-1500px);
+  position: absolute; width: 200vw; height: 200vh; top: -50vh; left: -50vw; pointer-events: none; transform: translateZ(-1500px);
 }
 .bg-star {
   position: absolute; background-color: #fff; border-radius: 50%; opacity: 0.5;
 }
 
 #camera {
-  width: 0; height: 0; position: absolute; top: 50%; left: 50%;
-  transform-style: preserve-3d;
-  /* ¡MAGIA! Añadimos traslación X y Y para movernos por el espacio */
+  width: 0; height: 0; position: absolute; top: 50%; left: 50%; transform-style: preserve-3d;
   transform: translateZ(var(--zoomZ)) translateX(var(--panX)) translateY(var(--panY)) rotateX(var(--rotX)) rotateY(var(--rotY));
   transition: transform 0.1s ease-out; 
 }
@@ -111,16 +96,14 @@ input[type=range][orient=vertical] {
 }
 
 #black-hole-center {
-  position: absolute; top: -80px; left: -80px;
-  width: 160px; height: 160px;
+  position: absolute; top: -80px; left: -80px; width: 160px; height: 160px;
   background-color: #000; border-radius: 50%;
   box-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 0 0 30px rgba(255, 200, 100, 0.8), 0 0 80px rgba(255, 100, 0, 0.6), 0 0 150px rgba(150, 50, 255, 0.4);
   transform: rotateY(var(--invRotY)) rotateX(var(--invRotX));
 }
 
 #accretion-disk {
-  position: absolute; top: 0; left: 0;
-  transform-style: preserve-3d;
+  position: absolute; top: 0; left: 0; transform-style: preserve-3d;
   transform: rotateY(var(--diskAngle));
 }
 
@@ -129,31 +112,30 @@ input[type=range][orient=vertical] {
   transform: translate3d(var(--tx), var(--ty), var(--tz));
 }
 
-/* --- FOTOS PEQUEÑAS MEZCLADAS EN LAS ESTRELLAS --- */
+/* --- FOTOS EN LA ESPIRAL --- */
 .photo-container {
-  position: absolute; top: 0; left: 0;
-  transform-style: preserve-3d;
+  position: absolute; top: 0; left: 0; transform-style: preserve-3d;
   transform: translate3d(var(--tx), var(--ty), var(--tz)) 
              rotateY(calc(-1 * var(--diskAngle))) 
              rotateY(var(--invRotY)) 
              rotateX(var(--invRotX));
+  z-index: 1; /* Para que compartan nivel con las estrellas */
 }
 
 .photo-container img {
-  /* FOTOS MUCHO MÁS PEQUEÑAS PARA MEZCLARSE EN EL ARO */
   width: 60px; height: 60px; object-fit: cover;
-  border-radius: 50%; /* Redonditas para parecer cúmulos de luz */
-  border: 1px solid rgba(255, 200, 100, 0.5);
-  box-shadow: 0 0 20px rgba(255, 150, 0, 0.6), inset 0 0 5px rgba(0,0,0,0.5);
+  border-radius: 50%; 
+  border: 1.5px solid rgba(255, 200, 100, 0.7);
+  box-shadow: 0 0 15px rgba(255, 150, 0, 0.8);
   cursor: pointer; pointer-events: auto;
   transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s, border-color 0.4s;
 }
 
 .photo-container:hover img {
   border-color: #fff; 
-  box-shadow: 0 0 40px rgba(255, 255, 255, 0.9), 0 0 60px rgba(255, 150, 0, 0.9);
-  transform: scale(2.5); /* Al pasar el ratón se agrandan mucho para verlas bien */
-  z-index: 10;
+  box-shadow: 0 0 30px rgba(255, 255, 255, 0.9), 0 0 50px rgba(255, 150, 0, 0.9);
+  transform: scale(2.5); /* Al tocarlas crecen para verse claras */
+  z-index: 100; position: relative;
 }
 
 /* --- MODAL DE LA CARTA --- */
