@@ -4,6 +4,7 @@ const camera = document.getElementById('camera');
 const accretionDisk = document.getElementById('accretion-disk');
 const bgMusic = document.getElementById('bg-music');
 const bgStars = document.getElementById('bg-stars');
+const uiControls = document.getElementById('ui-controls');
 
 const letterModal = document.getElementById('letter-modal');
 const closeLetterBtn = document.getElementById('close-letter');
@@ -42,11 +43,11 @@ startScreen.addEventListener('click', () => {
   setTimeout(() => {
     startScreen.style.display = 'none';
     scene.classList.remove('hidden');
+    uiControls.classList.remove('hidden'); // Mostrar los botones
     camera.classList.add('entry-animation');
   }, 1000);
 });
 
-// Estrellas de fondo lejano
 function crearFondoEstrellas() {
   for (let i = 0; i < 300; i++) {
     const star = document.createElement('div');
@@ -60,24 +61,21 @@ function crearFondoEstrellas() {
   }
 }
 
-// Crear el Disco de Acreción (Estrellas y fotos mezcladas y PLANAS)
 function crearAroDeEstrellasYFotos() {
-  const radioInterno = 180; // Empiezan un poco alejadas del centro oscuro
-  const radioExterno = 1000; // Extensión total del universo visible
+  const radioInterno = 180; 
+  const radioExterno = 1500; // Lo hicimos AÚN MÁS GRANDE para poder navegar por él
   
-  // 1. Crear 2500 estrellas de colores formando un disco majestuoso
-  for (let i = 0; i < 2500; i++) {
+  // 1. Crear 3000 estrellas para que se vea súper denso
+  for (let i = 0; i < 3000; i++) {
     const star = document.createElement('div');
     star.className = 'disk-star';
     
     const angulo = Math.random() * Math.PI * 2;
-    // Concentramos más estrellas cerca del centro
     const radio = radioInterno + Math.pow(Math.random(), 2) * (radioExterno - radioInterno);
     
     const tx = Math.cos(angulo) * radio;
     const tz = Math.sin(angulo) * radio;
-    // ¡DISCO PLANO! Variación mínima en altura para que parezca un aro compacto
-    const ty = (Math.random() - 0.5) * 15; 
+    const ty = (Math.random() - 0.5) * 20; 
     
     star.style.setProperty('--tx', `${tx}px`);
     star.style.setProperty('--ty', `${ty}px`);
@@ -87,34 +85,29 @@ function crearAroDeEstrellasYFotos() {
     star.style.width = `${size}px`;
     star.style.height = `${size}px`;
     
-    // Asignar colores tipo Interstellar (blanco, azul caliente, naranja)
     const randColor = Math.random();
-    if (randColor > 0.85) star.style.backgroundColor = '#ffcc88'; // Naranja/Dorado
-    else if (randColor > 0.70) star.style.backgroundColor = '#aaddff'; // Azul caliente
-    else star.style.backgroundColor = '#ffffff'; // Blanco puro
+    if (randColor > 0.85) star.style.backgroundColor = '#ffcc88'; 
+    else if (randColor > 0.70) star.style.backgroundColor = '#aaddff'; 
+    else star.style.backgroundColor = '#ffffff'; 
 
-    // Halo de brillo
     star.style.boxShadow = `0 0 ${Math.random() * 10 + 5}px ${star.style.backgroundColor}`;
-    
     accretionDisk.appendChild(star);
   }
 
-  // 2. Insertar las fotos en EL MISMO DISCO
+  // 2. FOTOS PEQUEÑAS MEZCLADAS EN LAS ESTRELLAS
   for (let i = 0; i < totalFotos; i++) {
     const photoWrapper = document.createElement('div');
     photoWrapper.className = 'photo-container';
     
-    // Distribuir en un círculo completo para que no se peguen
     const anguloBase = (i / totalFotos) * Math.PI * 2;
-    const angulo = anguloBase + (Math.random() * 0.2 - 0.1); // Ligera variación natural
+    const angulo = anguloBase + (Math.random() * 0.3 - 0.15); 
     
-    // Distribuir la distancia (algunas cerca del hoyo negro, otras más lejos en el aro)
-    const radioFoto = radioInterno + 50 + Math.random() * (radioExterno - radioInterno - 200); 
+    // Distribuimos las fotos a lo largo de todo el inmenso aro
+    const radioFoto = radioInterno + 100 + Math.random() * (radioExterno - radioInterno - 300); 
     
     const tx = Math.cos(angulo) * radioFoto;
     const tz = Math.sin(angulo) * radioFoto;
-    // Las fotos comparten la misma altura plana que el polvo estelar
-    const ty = (Math.random() - 0.5) * 10; 
+    const ty = (Math.random() - 0.5) * 15; // Mismo plano que las estrellas
     
     photoWrapper.style.setProperty('--tx', `${tx}px`);
     photoWrapper.style.setProperty('--ty', `${ty}px`);
@@ -131,15 +124,13 @@ function crearAroDeEstrellasYFotos() {
   }
 }
 
-// Rotación majestuosa (Cero rebotes, solo orbita)
 let diskAngle = 0;
 function iniciarRotacionAro() {
-  diskAngle += 0.05; // Muy suave
+  diskAngle += 0.03; // Aún más lento por lo inmenso que es
   document.documentElement.style.setProperty('--diskAngle', `${diskAngle}deg`);
   requestAnimationFrame(iniciarRotacionAro);
 }
 
-// LÓGICA DE LA CARTA
 function abrirCarta(imgSrc, mensaje) {
   letterImg.src = imgSrc;
   letterText.textContent = mensaje;
@@ -157,19 +148,22 @@ letterModal.addEventListener('click', (e) => {
   }
 });
 
-// --- CONTROLES DE CÁMARA ---
+// --- VARIABLES DE NAVEGACIÓN (ROTACIÓN, ZOOM Y PANEO) ---
 let rotX = -25; 
 let rotY = 0; 
 let zoomZ = 100; 
+let panX = 0;
+let panY = 0;
 let isDragging = false;
 let startX, startY;
 
+// Arrastrar con ratón para ROTAR la cámara
 scene.addEventListener('mousedown', (e) => {
-  if (camera.classList.contains('entry-animation')) return; 
+  if (camera.classList.contains('entry-animation') || e.target.closest('#ui-controls')) return; 
   isDragging = true; startX = e.clientX; startY = e.clientY;
 });
 scene.addEventListener('touchstart', (e) => {
-  if (camera.classList.contains('entry-animation')) return;
+  if (camera.classList.contains('entry-animation') || e.target.closest('#ui-controls')) return;
   isDragging = true; startX = e.touches[0].clientX; startY = e.touches[0].clientY;
 });
 
@@ -178,11 +172,11 @@ const moverCamara = (x, y) => {
   const deltaX = x - startX;
   const deltaY = y - startY;
   
-  rotY += deltaX * 0.4; 
-  rotX -= deltaY * 0.4; 
+  rotY += deltaX * 0.3; 
+  rotX -= deltaY * 0.3; 
   
-  if(rotX > 85) rotX = 85; // Permitir vista desde arriba
-  if(rotX < -85) rotX = -85; // Permitir vista desde abajo
+  if(rotX > 85) rotX = 85; 
+  if(rotX < -85) rotX = -85; 
 
   document.documentElement.style.setProperty('--rotX', `${rotX}deg`);
   document.documentElement.style.setProperty('--rotY', `${rotY}deg`);
@@ -199,14 +193,38 @@ const detenerArrastre = () => isDragging = false;
 window.addEventListener('mouseup', detenerArrastre);
 window.addEventListener('touchend', detenerArrastre);
 
-// ZOOM (Adelante y atrás)
+// --- LÓGICA DE LOS BOTONES DE LA INTERFAZ ---
+
+// Zoom con Rueda o Slider
+const zoomSlider = document.getElementById('zoom-slider');
+
+function aplicarZoom(nuevoZoom) {
+  zoomZ = nuevoZoom;
+  if (zoomZ < -2500) zoomZ = -2500; 
+  if (zoomZ > 1500) zoomZ = 1500; 
+  document.documentElement.style.setProperty('--zoomZ', `${zoomZ}px`);
+  zoomSlider.value = zoomZ;
+}
+
 scene.addEventListener('wheel', (e) => {
   if (camera.classList.contains('entry-animation')) return;
   e.preventDefault();
-  
-  zoomZ -= e.deltaY * 1.5; 
-  if (zoomZ < -2500) zoomZ = -2500; 
-  if (zoomZ > 1200) zoomZ = 1200; 
-  
-  document.documentElement.style.setProperty('--zoomZ', `${zoomZ}px`);
+  aplicarZoom(zoomZ - (e.deltaY * 1.5));
 }, { passive: false });
+
+zoomSlider.addEventListener('input', (e) => aplicarZoom(parseInt(e.target.value)));
+document.getElementById('zoom-in').addEventListener('click', () => aplicarZoom(zoomZ + 200));
+document.getElementById('zoom-out').addEventListener('click', () => aplicarZoom(zoomZ - 200));
+
+// Paneo (Moverse de un lado a otro en la galaxia)
+const velocidadPan = 150;
+
+function aplicarPaneo() {
+  document.documentElement.style.setProperty('--panX', `${panX}px`);
+  document.documentElement.style.setProperty('--panY', `${panY}px`);
+}
+
+document.getElementById('pan-up').addEventListener('click', () => { panY -= velocidadPan; aplicarPaneo(); });
+document.getElementById('pan-down').addEventListener('click', () => { panY += velocidadPan; aplicarPaneo(); });
+document.getElementById('pan-left').addEventListener('click', () => { panX += velocidadPan; aplicarPaneo(); });
+document.getElementById('pan-right').addEventListener('click', () => { panX -= velocidadPan; aplicarPaneo(); });
