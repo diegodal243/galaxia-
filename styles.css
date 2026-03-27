@@ -1,15 +1,17 @@
 :root {
-  --rotX: -25deg; /* Vista semi-superior para apreciar el disco */
+  --rotX: -25deg; 
   --rotY: 0deg;
   --invRotX: 25deg;
   --invRotY: 0deg;
   --diskAngle: 0deg;
-  --zoomZ: 100px; /* Iniciamos cerca, pero con buena perspectiva */
+  --zoomZ: 100px; 
+  --panX: 0px; /* Para moverse a los lados */
+  --panY: 0px; /* Para moverse arriba/abajo */
 }
 
 body {
   margin: 0; padding: 0;
-  background-color: #010005; /* Vacío absoluto */
+  background-color: #010005; 
   height: 100vh; overflow: hidden;
   font-family: 'Dosis', sans-serif;
   user-select: none;
@@ -38,6 +40,44 @@ body {
 }
 @keyframes parpadeo { 0% { opacity: 0.6; } 100% { opacity: 1; } }
 
+/* --- CONTROLES DE INTERFAZ (UI) --- */
+#ui-controls {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none; /* Para que no bloquee arrastrar la cámara */
+  z-index: 5000;
+}
+
+.pan-controls {
+  position: absolute; bottom: 30px; left: 30px;
+  display: flex; flex-direction: column; align-items: center; gap: 5px;
+  pointer-events: auto;
+}
+.pan-horizontal { display: flex; gap: 30px; }
+
+.zoom-controls {
+  position: absolute; top: 30px; right: 30px;
+  display: flex; flex-direction: column; align-items: center; gap: 15px;
+  background: rgba(255, 255, 255, 0.05); padding: 15px; border-radius: 20px;
+  backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.1);
+  pointer-events: auto;
+}
+
+#ui-controls button {
+  background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255,255,255,0.2);
+  color: #fff; width: 40px; height: 40px; border-radius: 50%;
+  font-size: 1.2rem; cursor: pointer; transition: all 0.2s;
+  backdrop-filter: blur(5px);
+}
+#ui-controls button:hover { background: rgba(255, 170, 0, 0.5); transform: scale(1.1); }
+#ui-controls button:active { transform: scale(0.9); }
+
+/* Slider vertical para zoom */
+input[type=range][orient=vertical] {
+  writing-mode: bt-lr; /* IE */
+  -webkit-appearance: slider-vertical; /* WebKit */
+  width: 8px; height: 120px; padding: 0 5px;
+}
+
 /* --- ESCENARIO Y CÁMARA --- */
 #scene {
   position: absolute; width: 100%; height: 100%;
@@ -57,7 +97,8 @@ body {
 #camera {
   width: 0; height: 0; position: absolute; top: 50%; left: 50%;
   transform-style: preserve-3d;
-  transform: translateZ(var(--zoomZ)) rotateX(var(--rotX)) rotateY(var(--rotY));
+  /* ¡MAGIA! Añadimos traslación X y Y para movernos por el espacio */
+  transform: translateZ(var(--zoomZ)) translateX(var(--panX)) translateY(var(--panY)) rotateX(var(--rotX)) rotateY(var(--rotY));
   transition: transform 0.1s ease-out; 
 }
 
@@ -65,26 +106,18 @@ body {
   animation: entradaEpica 5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 @keyframes entradaEpica {
-  0% { transform: translateZ(-3000px) rotateX(-80deg) rotateY(180deg); opacity: 0; }
-  100% { transform: translateZ(var(--zoomZ)) rotateX(var(--rotX)) rotateY(var(--rotY)); opacity: 1; }
+  0% { transform: translateZ(-3000px) translateX(0) translateY(0) rotateX(-80deg) rotateY(180deg); opacity: 0; }
+  100% { transform: translateZ(var(--zoomZ)) translateX(var(--panX)) translateY(var(--panY)) rotateX(var(--rotX)) rotateY(var(--rotY)); opacity: 1; }
 }
 
-/* --- EL HOYO NEGRO ULTRA REALISTA --- */
 #black-hole-center {
   position: absolute; top: -80px; left: -80px;
   width: 160px; height: 160px;
   background-color: #000; border-radius: 50%;
-  /* Múltiples capas de sombra para crear el disco de fotones brillante */
-  box-shadow: 
-    0 0 10px rgba(255, 255, 255, 0.8),
-    0 0 30px rgba(255, 200, 100, 0.8),
-    0 0 80px rgba(255, 100, 0, 0.6),
-    0 0 150px rgba(150, 50, 255, 0.4);
-  /* El agujero siempre mira a la cámara para verse perfectamente esférico */
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 0 0 30px rgba(255, 200, 100, 0.8), 0 0 80px rgba(255, 100, 0, 0.6), 0 0 150px rgba(150, 50, 255, 0.4);
   transform: rotateY(var(--invRotY)) rotateX(var(--invRotX));
 }
 
-/* --- EL DISCO DE ACRECIÓN --- */
 #accretion-disk {
   position: absolute; top: 0; left: 0;
   transform-style: preserve-3d;
@@ -92,16 +125,14 @@ body {
 }
 
 .disk-star {
-  position: absolute; top: 0; left: 0;
-  border-radius: 50%;
+  position: absolute; top: 0; left: 0; border-radius: 50%;
   transform: translate3d(var(--tx), var(--ty), var(--tz));
 }
 
-/* --- LAS FOTOS (Integradas en el disco, sin brincar) --- */
+/* --- FOTOS PEQUEÑAS MEZCLADAS EN LAS ESTRELLAS --- */
 .photo-container {
   position: absolute; top: 0; left: 0;
   transform-style: preserve-3d;
-  /* La foto se traslada por el disco, anula el giro del disco y luego anula la cámara */
   transform: translate3d(var(--tx), var(--ty), var(--tz)) 
              rotateY(calc(-1 * var(--diskAngle))) 
              rotateY(var(--invRotY)) 
@@ -109,19 +140,19 @@ body {
 }
 
 .photo-container img {
-  width: 140px; height: 140px; object-fit: cover;
-  border-radius: 8px; /* Cuadradas con borde suave */
-  border: 2px solid rgba(255, 200, 100, 0.8);
-  /* Halo de luz cósmica para que se mezclen con las estrellas */
-  box-shadow: 0 0 30px rgba(255, 150, 0, 0.5), inset 0 0 10px rgba(0,0,0,0.5);
+  /* FOTOS MUCHO MÁS PEQUEÑAS PARA MEZCLARSE EN EL ARO */
+  width: 60px; height: 60px; object-fit: cover;
+  border-radius: 50%; /* Redonditas para parecer cúmulos de luz */
+  border: 1px solid rgba(255, 200, 100, 0.5);
+  box-shadow: 0 0 20px rgba(255, 150, 0, 0.6), inset 0 0 5px rgba(0,0,0,0.5);
   cursor: pointer; pointer-events: auto;
   transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s, border-color 0.4s;
 }
 
 .photo-container:hover img {
   border-color: #fff; 
-  box-shadow: 0 0 50px rgba(255, 255, 255, 0.8), 0 0 80px rgba(255, 150, 0, 0.8);
-  transform: scale(1.2); 
+  box-shadow: 0 0 40px rgba(255, 255, 255, 0.9), 0 0 60px rgba(255, 150, 0, 0.9);
+  transform: scale(2.5); /* Al pasar el ratón se agrandan mucho para verlas bien */
   z-index: 10;
 }
 
