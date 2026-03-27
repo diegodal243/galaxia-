@@ -37,13 +37,13 @@ startScreen.addEventListener('click', () => {
   bgMusic.play().catch(e => console.log("Audio no reproducido"));
   
   crearFondoEstrellas();
-  crearAroDeEstrellasYFotos();
+  crearAroGirasol();
   iniciarRotacionAro();
 
   setTimeout(() => {
     startScreen.style.display = 'none';
     scene.classList.remove('hidden');
-    uiControls.classList.remove('hidden'); // Mostrar los botones
+    uiControls.classList.remove('hidden'); 
     camera.classList.add('entry-animation');
   }, 1000);
 });
@@ -61,21 +61,22 @@ function crearFondoEstrellas() {
   }
 }
 
-function crearAroDeEstrellasYFotos() {
-  const radioInterno = 180; 
-  const radioExterno = 1500; // Lo hicimos AÚN MÁS GRANDE para poder navegar por él
+function crearAroGirasol() {
+  const c = 18; // Constante de expansión de la espiral
+  const totalPuntos = 3000;
   
-  // 1. Crear 3000 estrellas para que se vea súper denso
-  for (let i = 0; i < 3000; i++) {
+  // 1. Crear las estrellas usando la Espiral de Fermat (Girasol)
+  for (let i = 1; i <= totalPuntos; i++) {
     const star = document.createElement('div');
     star.className = 'disk-star';
     
-    const angulo = Math.random() * Math.PI * 2;
-    const radio = radioInterno + Math.pow(Math.random(), 2) * (radioExterno - radioInterno);
+    // Matemática del girasol: 137.5 grados es el ángulo áureo
+    const angulo = i * 137.508 * (Math.PI / 180);
+    const radio = 150 + c * Math.sqrt(i); // Empieza a 150px del hoyo negro
     
     const tx = Math.cos(angulo) * radio;
     const tz = Math.sin(angulo) * radio;
-    const ty = (Math.random() - 0.5) * 20; 
+    const ty = (Math.random() - 0.5) * 15; // Mismo grosor de banda para fotos y estrellas
     
     star.style.setProperty('--tx', `${tx}px`);
     star.style.setProperty('--ty', `${ty}px`);
@@ -85,25 +86,25 @@ function crearAroDeEstrellasYFotos() {
     star.style.width = `${size}px`;
     star.style.height = `${size}px`;
     
+    // Colores dorados como girasol / fuego cósmico
     const randColor = Math.random();
-    if (randColor > 0.85) star.style.backgroundColor = '#ffcc88'; 
-    else if (randColor > 0.70) star.style.backgroundColor = '#aaddff'; 
+    if (randColor > 0.8) star.style.backgroundColor = '#ffcc88'; 
+    else if (randColor > 0.6) star.style.backgroundColor = '#ffaa00'; 
     else star.style.backgroundColor = '#ffffff'; 
 
     star.style.boxShadow = `0 0 ${Math.random() * 10 + 5}px ${star.style.backgroundColor}`;
     accretionDisk.appendChild(star);
   }
 
-  // 2. FOTOS PEQUEÑAS MEZCLADAS EN LAS ESTRELLAS
-  for (let i = 0; i < totalFotos; i++) {
+  // 2. Incrustar las fotos en la misma espiral matemática
+  for (let i = 1; i <= totalFotos; i++) {
     const photoWrapper = document.createElement('div');
     photoWrapper.className = 'photo-container';
     
-    const anguloBase = (i / totalFotos) * Math.PI * 2;
-    const angulo = anguloBase + (Math.random() * 0.3 - 0.15); 
-    
-    // Distribuimos las fotos a lo largo de todo el inmenso aro
-    const radioFoto = radioInterno + 100 + Math.random() * (radioExterno - radioInterno - 300); 
+    // Elegimos puntos específicos de la espiral para que queden regadas y sumergidas
+    const puntoEnEspiral = i * 180; // Reparte las fotos entre las 3000 estrellas
+    const angulo = puntoEnEspiral * 137.508 * (Math.PI / 180);
+    const radioFoto = 150 + c * Math.sqrt(puntoEnEspiral);
     
     const tx = Math.cos(angulo) * radioFoto;
     const tz = Math.sin(angulo) * radioFoto;
@@ -113,20 +114,21 @@ function crearAroDeEstrellasYFotos() {
     photoWrapper.style.setProperty('--ty', `${ty}px`);
     photoWrapper.style.setProperty('--tz', `${tz}px`);
     
-    photoWrapper.innerHTML = `<img src="assets/foto${i + 1}.jpg" alt="Recuerdo">`;
+    photoWrapper.innerHTML = `<img src="assets/foto${i}.jpg" alt="Recuerdo">`;
     
     photoWrapper.addEventListener('click', (e) => {
       e.stopPropagation(); 
-      abrirCarta(`assets/foto${i + 1}.jpg`, mensajesFotos[i]);
+      abrirCarta(`assets/foto${i}.jpg`, mensajesFotos[i - 1]);
     });
 
     accretionDisk.appendChild(photoWrapper);
   }
 }
 
+// Rotación Unidireccional a la derecha
 let diskAngle = 0;
 function iniciarRotacionAro() {
-  diskAngle += 0.03; // Aún más lento por lo inmenso que es
+  diskAngle -= 0.05; // Restando gira hacia la derecha desde nuestra perspectiva superior
   document.documentElement.style.setProperty('--diskAngle', `${diskAngle}deg`);
   requestAnimationFrame(iniciarRotacionAro);
 }
@@ -148,16 +150,15 @@ letterModal.addEventListener('click', (e) => {
   }
 });
 
-// --- VARIABLES DE NAVEGACIÓN (ROTACIÓN, ZOOM Y PANEO) ---
+// --- VARIABLES DE NAVEGACIÓN ---
 let rotX = -25; 
 let rotY = 0; 
-let zoomZ = 100; 
+let zoomZ = 150; 
 let panX = 0;
 let panY = 0;
 let isDragging = false;
 let startX, startY;
 
-// Arrastrar con ratón para ROTAR la cámara
 scene.addEventListener('mousedown', (e) => {
   if (camera.classList.contains('entry-animation') || e.target.closest('#ui-controls')) return; 
   isDragging = true; startX = e.clientX; startY = e.clientY;
@@ -193,9 +194,7 @@ const detenerArrastre = () => isDragging = false;
 window.addEventListener('mouseup', detenerArrastre);
 window.addEventListener('touchend', detenerArrastre);
 
-// --- LÓGICA DE LOS BOTONES DE LA INTERFAZ ---
-
-// Zoom con Rueda o Slider
+// Lógica de UI (Botones y Slider)
 const zoomSlider = document.getElementById('zoom-slider');
 
 function aplicarZoom(nuevoZoom) {
@@ -216,9 +215,7 @@ zoomSlider.addEventListener('input', (e) => aplicarZoom(parseInt(e.target.value)
 document.getElementById('zoom-in').addEventListener('click', () => aplicarZoom(zoomZ + 200));
 document.getElementById('zoom-out').addEventListener('click', () => aplicarZoom(zoomZ - 200));
 
-// Paneo (Moverse de un lado a otro en la galaxia)
 const velocidadPan = 150;
-
 function aplicarPaneo() {
   document.documentElement.style.setProperty('--panX', `${panX}px`);
   document.documentElement.style.setProperty('--panY', `${panY}px`);
