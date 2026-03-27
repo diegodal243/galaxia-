@@ -16,6 +16,23 @@
 
   <audio id="bg-music" src="assets/cancion.mp3" loop></audio>
 
+  <div id="ui-controls" class="hidden">
+    <div class="pan-controls">
+      <button id="pan-up">▲</button>
+      <div class="pan-horizontal">
+        <button id="pan-left">◄</button>
+        <button id="pan-right">►</button>
+      </div>
+      <button id="pan-down">▼</button>
+    </div>
+    
+    <div class="zoom-controls">
+      <button id="zoom-in">+</button>
+      <input type="range" id="zoom-slider" min="-2500" max="1500" value="100" step="10">
+      <button id="zoom-out">-</button>
+    </div>
+  </div>
+
   <div id="scene" class="hidden">
     <div id="bg-stars"></div> 
     
